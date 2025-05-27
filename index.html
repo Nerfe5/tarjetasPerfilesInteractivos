@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Portafolio de Talentos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="search-container">
+        
+    <input type="text" id="search-input" placeholder="Buscar por nombre o título">
+    <span class="search-icon" tabindex="0">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="10" cy="10" r="7"/>
+        <line x1="16" y1="16" x2="21" y2="21"/>
+      </svg>
+    </span> </div>
+    </div>
+
+    <div class="pagination-settings">
+        Mostrar:
+        <select id="profiles-per-page">
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+        </select> perfiles por página
+    </div>
+
+    <div id="profiles-container">
+        </div>
+
+    <div id="loading-message" class="hidden">Cargando perfiles...</div>
+
+    <div id="no-results-message" class="hidden">No se encontraron perfiles.</div>
+
+    <div class="count-display" id="selected-profiles-count">Perfiles seleccionados: 0</div>
+
+    <div class="pagination-container">
+        <button id="prev-page">Anterior</button>
+        <div id="page-numbers">
+            </div>
+        <button id="next-page">Siguiente</button>
+    </div>
+
+    
+
+    <script src="script.js"></script>
+</body>
+</html>
