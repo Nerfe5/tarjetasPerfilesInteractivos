@@ -1,137 +1,12 @@
-const profilesData = [
-    {
-        name: "Juan Pérez",
-        title: "Desarrollador FrontEnd Júnior",
-        bio: "Apasionado por crear interfaces de usuario atractivas y responsivas. Constantemente aprendiendo nuevas tecnologías. Apasionado por crear interfaces de usuario atractivas y responsivas. Constantemente aprendiendo nuevas tecnologías.",
-        image: "https://via.placeholder.com/120/007bff/FFFFFF?text=JP",
-        twitter: "https://twitter.com/juanp",
-        linkedin: "https://linkedin.com/in/juanperez"
-    },
-    {
-        name: "Ana García",
-        title: "Diseñadora UX/UI",
-        bio: "Enfocada en la experiencia de usuario y el diseño intuitivo para aplicaciones web y móviles.",
-        image: "https://via.placeholder.com/120/FF5733/FFFFFF?text=AG",
-        twitter: "https://twitter.com/anag",
-        linkedin: "https://linkedin.com/in/anagarcia"
-    },
-    {
-        name: "Carlos Díaz",
-        title: "Especialista en SEO",
-        bio: "Ayudo a las empresas a mejorar su visibilidad online y a alcanzar a su público objetivo.",
-        image: "https://via.placeholder.com/120/33FF57/FFFFFF?text=CD",
-        twitter: "https://twitter.com/carlosd",
-        linkedin: "https://linkedin.com/in/carlosdiaz"
-    },
-    {
-        name: "Laura Martínez",
-        title: "Desarrolladora FullStack",
-        bio: "Experta en construir aplicaciones robustas tanto en el frontend como en el backend. Siempre en busca de nuevos retos.",
-        image: "https://via.placeholder.com/120/FFC107/FFFFFF?text=LM",
-        twitter: "https://twitter.com/lauram",
-        linkedin: "https://linkedin.com/in/lauramartinez"
-    },
-    {
-        name: "Pedro Sánchez",
-        title: "Analista de Datos",
-        bio: "Transformo datos complejos en información valiosa para la toma de decisiones empresariales.",
-        image: "https://via.placeholder.com/120/17A2B8/FFFFFF?text=PS",
-        twitter: "https://twitter.com/pedros",
-        linkedin: "https://linkedin.com/in/pedrosanchez"
-    }
-    ,
-    {
-        name: "Ana Pérez",
-        title: "Desarrolladora Front-end",
-        image: "https://via.placeholder.com/100/FFC0CB/000?Text=AP",
-        bio: "Apasionada desarrolladora front-end con experiencia en React y Vue.js. Siempre aprendiendo nuevas tecnologías.",
-        twitter: "https://twitter.com/anaperezdev",
-        linkedin: "https://linkedin.com/in/anaperezdev"
-    },
-    {
-        name: "Carlos López",
-        title: "Ingeniero de Software",
-        image: "https://via.placeholder.com/100/ADD8E6/000?Text=CL",
-        bio: "Ingeniero de software con enfoque en el desarrollo back-end y la arquitectura de sistemas. Experto en Java y Python.",
-        linkedin: "https://linkedin.com/in/carloslopezing",
-    },
-    {
-        name: "Sofía Gómez",
-        title: "Diseñadora UX/UI",
-        image: "https://via.placeholder.com/100/90EE90/000?Text=SG",
-        bio: "Diseñadora UX/UI con un fuerte sentido estético y enfoque en la experiencia del usuario. Figma y Adobe XD.",
-        twitter: "https://twitter.com/sofiagomezux",
-        linkedin: "https://linkedin.com/in/sofiagomezdesign"
-    },
-    {
-        name: "Javier Vargas",
-        title: "Científico de Datos",
-        image: "https://via.placeholder.com/100/FFA07A/000?Text=JV",
-        bio: "Científico de datos con experiencia en análisis estadístico, machine learning y visualización de datos. Python y R.",
-        linkedin: "https://linkedin.com/in/javierdatascience"
-    },
-    {
-        name: "Elena Ruiz",
-        title: "Gerente de Proyectos",
-        image: "https://via.placeholder.com/100/DDA0DD/000?Text=ER",
-        bio: "Gerente de proyectos con habilidades en liderazgo de equipos y metodologías ágiles. Certificada en PMP.",
-        linkedin: "https://linkedin.com/in/elenaruizprojectmanager"
-    },
-    // --- Nuevos perfiles ---
-    {
-        name: "Martín Flores",
-        title: "Desarrollador Full-Stack",
-        image: "https://via.placeholder.com/100/87CEEB/000?Text=MF",
-        bio: "Desarrollador full-stack con experiencia en MERN stack. Amante del código limpio y las soluciones eficientes.",
-        twitter: "https://twitter.com/martinflowdev",
-        linkedin: "https://linkedin.com/in/martinfloresfullstack"
-    },
-    {
-        name: "Isabel Castro",
-        title: "Especialista en Marketing Digital",
-        image: "https://via.placeholder.com/100/F08080/000?Text=IC",
-        bio: "Especialista en marketing digital con enfoque en SEO, SEM y redes sociales. Creativa y orientada a resultados.",
-        linkedin: "https://linkedin.com/in/isabelcastromarketing"
-    },
-    {
-        name: "Gabriel Soto",
-        title: "Analista de Sistemas",
-        image: "https://via.placeholder.com/100/FAF0E6/000?Text=GS",
-        bio: "Analista de sistemas con experiencia en la optimización de procesos y la implementación de soluciones tecnológicas.",
-        linkedin: "https://linkedin.com/in/gabrielsotoanalyst"
-    },
-    {
-        name: "Luisa Vargas",
-        title: "Desarrolladora de iOS",
-        image: "https://via.placeholder.com/100/E0FFFF/000?Text=LV",
-        bio: "Desarrolladora de iOS apasionada por la creación de aplicaciones móviles intuitivas y de alto rendimiento. Swift y SwiftUI.",
-        twitter: "https://twitter.com/luisavargasios",
-        linkedin: "https://linkedin.com/in/luisavargasiodev"
-    },
-    {
-        name: "Andrés Ríos",
-        title: "Especialista en Ciberseguridad",
-        image: "https://via.placeholder.com/100/B0E0E6/000?Text=AR",
-        bio: "Especialista en ciberseguridad con experiencia en la protección de sistemas y la respuesta a incidentes.",
-        linkedin: "https://linkedin.com/in/andresriosciberseguridad"
-    },
-    {
-        name: "Daniel Castro",
-        title: "Diseñador Gráfico",
-        image: "https://via.placeholder.com/100/ADFF2F/000?Text=DC",
-        bio: "Diseñador gráfico con un enfoque en la identidad visual, branding y diseño editorial. Adobe Illustrator y Photoshop.",
-        linkedin: "https://linkedin.com/in/danielcastrodesign"
-    },
-    {
-        name: "Valeria Guzmán",
-        title: "Desarrolladora de Android",
-        image: "https://via.placeholder.com/100/FFD700/000?Text=VG",
-        bio: "Desarrolladora de Android con experiencia en Kotlin y Java para la creación de aplicaciones móviles robustas.",
-        linkedin: "https://linkedin.com/in/valeriaguzmanandroid"
-    }
-
-];
-
+let profilesData = [];
+const storedProfiles = localStorage.getItem('profilesData');
+if (storedProfiles) {
+    profilesData = JSON.parse(storedProfiles);
+} else {
+    profilesData = [
+        // ...tu array original de perfiles...
+    ];
+}
 
 const profilesContainer = document.getElementById('profiles-container');
 const searchInput = document.getElementById('search-input');
@@ -233,6 +108,10 @@ function goToNextPage() {
 
 function saveSelectedProfiles() {
     localStorage.setItem(SELECTED_PROFILES_KEY, JSON.stringify(Array.from(selectedProfileIds)));
+}
+
+function saveProfilesToLocalStorage() {
+    localStorage.setItem('profilesData', JSON.stringify(profilesData));
 }
 
 function updateSelectedCount() {
@@ -354,6 +233,52 @@ function createProfileCard(profile) {
     card.appendChild(socialDiv);
     card.appendChild(button);
 
+    // Botones de eliminar y editar
+
+const deleteBtn = document.createElement('button');
+deleteBtn.classList.add('delete-profile-btn');
+deleteBtn.textContent = "Eliminar";
+deleteBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    if (confirm(`¿Seguro que deseas eliminar el perfil de ${profile.name}?`)) {
+        // Busca el índice del perfil en el array
+        const idx = profilesData.findIndex(p => 
+            p.name === profile.name &&
+            p.title === profile.title &&
+            p.bio === profile.bio
+        );
+      if (idx !== -1) {
+    profilesData.splice(idx, 1);
+    saveProfilesToLocalStorage();
+    displayCurrentPage(1, profilesData);
+    renderPageNumberButtons(profilesData);
+    updatePaginationUI(profilesData);
+}
+    }
+  
+});
+card.appendChild(deleteBtn);
+
+const editBtn = document.createElement('button');
+editBtn.classList.add('edit-profile-btn');
+editBtn.textContent = "Editar";
+editBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    document.getElementById('new-name').value = profile.name;
+    document.getElementById('new-title').value = profile.title;
+    document.getElementById('new-image').value = profile.image;
+    document.getElementById('new-bio').value = profile.bio;
+    document.getElementById('new-twitter').value = profile.twitter || '';
+    document.getElementById('new-linkedin').value = profile.linkedin || '';
+    addProfileForm.dataset.editingIndex = profilesData.findIndex(p =>
+        p.name === profile.name &&
+        p.title === profile.title &&
+        p.bio === profile.bio
+    );
+    addProfileForm.querySelector('button[type="submit"]').textContent = "Guardar cambios";
+});
+card.appendChild(editBtn);
+
     return card;
 }
 function renderProfileCards(profilesToRender) {
@@ -394,8 +319,7 @@ function handleSearch() {
     updatePaginationUI(currentFilteredProfiles);
 }
 
-// Asegúrate de que este listener NO exista si lo habías puesto antes aquí
-// profilesContainer.addEventListener('click', (event) => { ... });
+
 
 searchInput.addEventListener('input', handleSearch);
 
@@ -414,4 +338,43 @@ updatePaginationUI();
 
 
 prevPageButton.addEventListener('click', goToPrevPage);
-nextPageButton.addEventListener('click', goToNextPage);
+
+
+// --- Lógica para agregar y editar perfiles manualmente ---
+const addProfileForm = document.getElementById('add-profile-form');
+if (addProfileForm) {
+    addProfileForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('new-name').value.trim();
+        const title = document.getElementById('new-title').value.trim();
+        const image = document.getElementById('new-image').value.trim();
+        const bio = document.getElementById('new-bio').value.trim();
+        const twitter = document.getElementById('new-twitter').value.trim();
+        const linkedin = document.getElementById('new-linkedin').value.trim();
+
+        const newProfile = {
+            name,
+            title,
+            image,
+            bio,
+            twitter: twitter || null,
+            linkedin: linkedin || null
+        };
+
+        // ¿Estamos editando?
+        const editingIndex = addProfileForm.dataset.editingIndex;
+        if (editingIndex && editingIndex !== "-1") {
+            profilesData[editingIndex] = newProfile;
+            delete addProfileForm.dataset.editingIndex;
+            addProfileForm.querySelector('button[type="submit"]').textContent = "Agregar perfil";
+        } else {
+            profilesData.unshift(newProfile);
+        }
+
+        saveProfilesToLocalStorage(); // <-- ¡SIEMPRE guarda después de agregar o editar!
+
+        displayCurrentPage(1, profilesData);
+        addProfileForm.reset();
+    });
+}

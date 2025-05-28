@@ -444,3 +444,86 @@ body {
         margin-bottom: 10px;
     }
 }
+
+/* Formulario para agregar perfiles */
+.add-profile-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto 18px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    padding: 18px 20px 12px 20px;
+}
+
+#add-profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#add-profile-form h2 {
+    margin-bottom: 8px;
+    font-size: 1.2em;
+    color: #007bff;
+}
+
+#add-profile-form input,
+#add-profile-form textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    resize: none;
+}
+
+#add-profile-form textarea {
+    min-height: 60px;
+    max-height: 180px;
+}
+
+#add-profile-form button[type="submit"] {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 0;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#add-profile-form button[type="submit"]:hover {
+    background: #0056b3;
+}
+
+.delete-profile-btn {
+    background: #ff4d4f;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 0.95em;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.delete-profile-btn:hover {
+    background: #d9363e;
+}
+
+.edit-profile-btn {
+    background: #ffc107;
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-size: 0.95em;
+    margin-top: 8px;
+    margin-right: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.edit-profile-btn:hover {
+    background: #e0a800;
+}

@@ -7,6 +7,21 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<!-- Formulario para agregar perfiles -->
+<div class="add-profile-container">
+  <form id="add-profile-form">
+    <h2>Agregar nuevo perfil</h2>
+    <input type="text" id="new-name" placeholder="Nombre completo" required>
+    <input type="text" id="new-title" placeholder="Título u ocupación" required>
+    <input type="url" id="new-image" placeholder="URL de la imagen de perfil" required>
+    <textarea id="new-bio" placeholder="Biografía breve" required></textarea>
+    <input type="url" id="new-twitter" placeholder="URL de Twitter (opcional)">
+    <input type="url" id="new-linkedin" placeholder="URL de LinkedIn (opcional)">
+    <button type="submit">Agregar perfil</button>
+  </form>
+</div>
+
+
     <div class="search-container">
         
     <input type="text" id="search-input" placeholder="Buscar por nombre o título">
