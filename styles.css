@@ -527,3 +527,43 @@ body {
 .edit-profile-btn:hover {
     background: #e0a800;
 }
+
+#toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+}
+
+.toast {
+    background: #222;
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 8px;
+    margin-top: 8px;
+    font-size: 1em;
+    opacity: 0.95;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    animation: fadeInOut 2.5s;
+    pointer-events: auto;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(30px);}
+    10% { opacity: 0.95; transform: translateY(0);}
+    90% { opacity: 0.95; transform: translateY(0);}
+    100% { opacity: 0; transform: translateY(-30px);}
+}
+
+.profiles-count {
+    margin: 10px auto 10px auto;
+    text-align: center;
+    font-size: 1.1em;
+    color: #007bff;
+    font-weight: 500;
+}

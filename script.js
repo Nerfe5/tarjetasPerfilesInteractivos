@@ -241,21 +241,19 @@ deleteBtn.textContent = "Eliminar";
 deleteBtn.addEventListener('click', (event) => {
     event.stopPropagation();
     if (confirm(`¿Seguro que deseas eliminar el perfil de ${profile.name}?`)) {
-        // Busca el índice del perfil en el array
-        const idx = profilesData.findIndex(p => 
+        const idx = profilesData.findIndex(p =>
             p.name === profile.name &&
             p.title === profile.title &&
             p.bio === profile.bio
         );
-      if (idx !== -1) {
-    profilesData.splice(idx, 1);
-    saveProfilesToLocalStorage();
-    displayCurrentPage(1, profilesData);
-    renderPageNumberButtons(profilesData);
-    updatePaginationUI(profilesData);
-}
+        if (idx !== -1) {
+            profilesData.splice(idx, 1);
+            saveProfilesToLocalStorage();
+            showToast(`Perfil de ${profile.name} eliminado correctamente.`, "success");
+            currentPage = 1; // Opcional: vuelve a la primera página
+            displayProfiles(); // <-- SIEMPRE refresca así
+        }
     }
-  
 });
 card.appendChild(deleteBtn);
 
@@ -276,14 +274,17 @@ editBtn.addEventListener('click', (event) => {
         p.bio === profile.bio
     );
     addProfileForm.querySelector('button[type="submit"]').textContent = "Guardar cambios";
+    updateProfilesCount();
 });
 card.appendChild(editBtn);
 
     return card;
 }
 function renderProfileCards(profilesToRender) {
-    profilesContainer.innerHTML = '';
-     loadingMessage.classList.remove('hidden'); // Mostrar "Cargando..." al inicio de la renderización
+    const profilesContainer = document.getElementById('profiles-container');
+    profilesContainer.innerHTML = ''; // <-- Esto limpia el contenedor SIEMPRE
+
+    loadingMessage.classList.remove('hidden'); // Mostrar "Cargando..." al inicio de la renderización
     setTimeout(() => {
         if (profilesToRender.length === 0) {
             noResultsMessage.classList.remove('hidden');
@@ -307,38 +308,52 @@ function displayCurrentPage(page, profiles = profilesData) {
 }
 
 function handleSearch() {
-     const searchTerm = searchInput.value.toLowerCase();
-    currentFilteredProfiles = profilesData.filter(profile => {
-        const nameLower = profile.name.toLowerCase();
-        const titleLower = profile.title.toLowerCase();
-        return nameLower.includes(searchTerm) || titleLower.includes(searchTerm);
-    });
-    currentPage = 1; // Resetear la página al realizar una búsqueda
-    displayCurrentPage(currentPage, currentFilteredProfiles);
-    renderPageNumberButtons(currentFilteredProfiles);
-    updatePaginationUI(currentFilteredProfiles);
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    if (searchTerm) {
+        currentFilteredProfiles = profilesData.filter(profile => {
+            const nameLower = profile.name.toLowerCase();
+            const titleLower = profile.title.toLowerCase();
+            return nameLower.includes(searchTerm) || titleLower.includes(searchTerm);
+        });
+    } else {
+        currentFilteredProfiles = [];
+    }
+    currentPage = 1;
+    displayProfiles();
 }
 
 
-
-searchInput.addEventListener('input', handleSearch);
+searchInput.addEventListener('input', () => {
+    currentPage = 1;
+    displayProfiles();
+});
 
 profilesPerPageSelect.addEventListener('change', () => {
     profilesPerPage = parseInt(profilesPerPageSelect.value);
     currentPage = 1;
-    displayCurrentPage(currentPage, currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
-    renderPageNumberButtons(currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
-    updatePaginationUI(currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
+    displayProfiles();
 });
 
-displayCurrentPage(currentPage);
-renderPageNumberButtons();
-updatePaginationUI();
+
+displayProfiles();
 
 
 
-prevPageButton.addEventListener('click', goToPrevPage);
 
+prevPageButton.addEventListener('click', () => {
+    if (currentPage > 1 && searchInput.value.trim()) {
+        currentPage--;
+        displayProfiles();
+    }
+});
+
+nextPageButton.addEventListener('click', () => {
+    const totalPages = getTotalPages(currentFilteredProfiles);
+    if (currentPage < totalPages && searchInput.value.trim()) {
+        currentPage++;
+        displayProfiles();
+    }
+});
 
 // --- Lógica para agregar y editar perfiles manualmente ---
 const addProfileForm = document.getElementById('add-profile-form');
@@ -352,6 +367,27 @@ if (addProfileForm) {
         const bio = document.getElementById('new-bio').value.trim();
         const twitter = document.getElementById('new-twitter').value.trim();
         const linkedin = document.getElementById('new-linkedin').value.trim();
+
+        // --- Validaciones ---
+        if (!name || !title || !image || !bio) {
+            showToast("Por favor, completa todos los campos obligatorios.", "error");
+            return;
+        }
+        try {
+            new URL(image);
+        } catch {
+            showToast("La URL de la imagen no es válida.", "error");
+            return;
+        }
+        if (twitter && !/^https?:\/\/(www\.)?twitter\.com\/.+/.test(twitter)) {
+            showToast("La URL de Twitter debe ser válida (ejemplo: https://twitter.com/usuario).", "error");
+            return;
+        }
+        if (linkedin && !/^https?:\/\/(www\.)?linkedin\.com\/.+/.test(linkedin)) {
+            showToast("La URL de LinkedIn debe ser válida (ejemplo: https://linkedin.com/in/usuario).", "error");
+            return;
+        }
+        // --- Fin validaciones ---
 
         const newProfile = {
             name,
@@ -368,13 +404,70 @@ if (addProfileForm) {
             profilesData[editingIndex] = newProfile;
             delete addProfileForm.dataset.editingIndex;
             addProfileForm.querySelector('button[type="submit"]').textContent = "Agregar perfil";
+            showToast("Perfil editado correctamente.", "success");
         } else {
             profilesData.unshift(newProfile);
+            showToast("Perfil agregado correctamente.", "success");
         }
 
-        saveProfilesToLocalStorage(); // <-- ¡SIEMPRE guarda después de agregar o editar!
+        saveProfilesToLocalStorage(); // Guarda siempre
 
-        displayCurrentPage(1, profilesData);
+        displayProfiles(); // <-- SIEMPRE refresca así
         addProfileForm.reset();
     });
+}
+
+// Función para mostrar notificaciones tipo toast
+function showToast(message, type = "info") {
+    const toastContainer = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    if (type === "error") toast.style.background = "#d32f2f";
+    if (type === "success") toast.style.background = "#388e3c";
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+        toast.remove();
+    }, 2500);
+}
+
+function displayProfiles() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    let profilesToShow = [];
+    let paginated = false;
+
+    if (searchTerm) {
+        // Si hay búsqueda, filtra y pagina
+        currentFilteredProfiles = profilesData.filter(profile => {
+            const nameLower = profile.name.toLowerCase();
+            const titleLower = profile.title.toLowerCase();
+            return nameLower.includes(searchTerm) || titleLower.includes(searchTerm);
+        });
+        const startIndex = (currentPage - 1) * profilesPerPage;
+        const endIndex = startIndex + profilesPerPage;
+        profilesToShow = currentFilteredProfiles.slice(startIndex, endIndex);
+        paginated = true;
+    } else {
+        // Sin búsqueda, muestra todos los perfiles (sin paginación)
+        profilesToShow = profilesData;
+        paginated = false;
+    }
+
+    renderProfileCards(profilesToShow);
+    updateProfilesCount();
+
+    // Mostrar/ocultar controles de paginación
+    const paginationContainer = document.querySelector('.pagination-container');
+    if (paginationContainer) {
+        paginationContainer.style.display = paginated ? '' : 'none';
+    }
+    if (paginated) {
+        renderPageNumberButtons(currentFilteredProfiles);
+        updatePaginationUI(currentFilteredProfiles);
+    }
+}
+
+function updateProfilesCount() {
+    const countDiv = document.getElementById('profiles-count');
+    countDiv.textContent = `Total de perfiles: ${profilesData.length}`;
 }
