@@ -1,3 +1,8 @@
+// =====================
+// 1. VARIABLES GLOBALES Y ELEMENTOS DEL DOM
+// =====================
+
+// Datos de perfiles (carga desde localStorage o array inicial)
 let profilesData = [];
 const storedProfiles = localStorage.getItem('profilesData');
 if (storedProfiles) {
@@ -8,36 +13,47 @@ if (storedProfiles) {
     ];
 }
 
+// Elementos del DOM
 const profilesContainer = document.getElementById('profiles-container');
 const searchInput = document.getElementById('search-input');
 const noResultsMessage = document.getElementById('no-results-message');
 const selectedProfilesCountDisplay = document.getElementById('selected-profiles-count');
-const loadingMessage = document.getElementById('loading-message'); // Mensaje de carga
-const profilesPerPageSelect = document.getElementById('profiles-per-page'); // Nuevo elemento
-
-const SELECTED_PROFILES_KEY = 'selectedProfiles';
-const selectedProfileIds = new Set(JSON.parse(localStorage.getItem(SELECTED_PROFILES_KEY)) || []);
-
-const searchIcon = document.querySelector('.search-icon');
-
-searchIcon.addEventListener('click', () => {
-    searchInput.classList.add('active');
-    searchInput.focus();
-    // Si quieres buscar inmediatamente:
-    handleSearch();
-});
-
-
-// --- NUEVAS VARIABLES PARA LA PAGINACIÓN ---
-let profilesPerPage = parseInt(profilesPerPageSelect.value); // Inicializar con el valor seleccionado
-let currentPage = 1;
-let currentFilteredProfiles = []; // Almacenaremos los resultados de la búsqueda aquí
-
-
-// --- Elementos de paginación ---
+const loadingMessage = document.getElementById('loading-message');
+const profilesPerPageSelect = document.getElementById('profiles-per-page');
 const prevPageButton = document.getElementById('prev-page');
 const nextPageButton = document.getElementById('next-page');
 const pageNumbersContainer = document.getElementById('page-numbers');
+const addProfileForm = document.getElementById('add-profile-form');
+const SELECTED_PROFILES_KEY = 'selectedProfiles';
+const selectedProfileIds = new Set(JSON.parse(localStorage.getItem(SELECTED_PROFILES_KEY)) || []);
+const searchIcon = document.querySelector('.search-icon');
+
+const clearSearchBtn = document.getElementById('clear-search');
+
+searchInput.addEventListener('input', () => {
+    currentPage = 1;
+    displayProfiles();
+    // Mostrar u ocultar el botón "X"
+    clearSearchBtn.style.display = searchInput.value ? 'flex' : 'none';
+});
+
+clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearSearchBtn.style.display = 'none';
+    currentPage = 1;
+    displayProfiles();
+    searchInput.focus();
+});
+
+// Variables de paginación y búsqueda
+let profilesPerPage = parseInt(profilesPerPageSelect.value);
+let currentPage = 1;
+let currentFilteredProfiles = [];
+let renderTimeoutId = null;
+
+// =====================
+// 2. FUNCIONES DE PAGINACIÓN
+// =====================
 
 function getTotalPages(profiles = profilesData) {
     return Math.ceil(profiles.length / profilesPerPage);
@@ -50,10 +66,9 @@ function createPageNumberButton(pageNumber) {
     if (pageNumber === currentPage) {
         button.classList.add('active');
     }
-      button.addEventListener('click', () => {
+    button.addEventListener('click', () => {
         currentPage = pageNumber;
-        displayCurrentPage(currentPage, currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
-        updatePaginationUI(currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
+        displayProfiles();
     });
     return button;
 }
@@ -80,49 +95,89 @@ function updatePaginationUI(profiles = profilesData) {
     nextPageButton.disabled = currentPage === totalPages;
 }
 
+// =====================
+// 3. FUNCIONES DE RENDERIZADO Y UI
+// =====================
 
-function goToPrevPage() {
-    if (currentPage > 1) {
-        loadingMessage.classList.remove('hidden'); // Mostrar "Cargando..."
-        setTimeout(() => {
-            currentPage--;
-            displayCurrentPage(currentPage, currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
-            updatePaginationUI(currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
-            loadingMessage.classList.add('hidden'); // Ocultar "Cargando..."
-        }, 150); // Un pequeño delay para que se vea el mensaje (opcional)
+function renderProfileCards(profilesToRender) {
+    if (renderTimeoutId) clearTimeout(renderTimeoutId);
+    profilesContainer.innerHTML = '';
+    loadingMessage.classList.remove('hidden');
+    renderTimeoutId = setTimeout(() => {
+        if (profilesToRender.length === 0) {
+            noResultsMessage.classList.remove('hidden');
+        } else {
+            noResultsMessage.classList.add('hidden');
+            profilesToRender.forEach(profile => {
+                const newCard = createProfileCard(profile);
+                newCard.classList.add('profile-card--enter'); // Animación de entrada
+                profilesContainer.appendChild(newCard);
+                setTimeout(() => {
+                    newCard.classList.remove('profile-card--enter');
+                }, 10); // Deja que el DOM pinte antes de quitar la clase
+            });
+        }
+        updateSelectedCount();
+        loadingMessage.classList.add('hidden');
+        renderTimeoutId = null;
+    }, 100);
+}
+
+function displayProfiles() {
+    // Decide qué perfiles mostrar según búsqueda y paginación
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    let profilesToShow = [];
+    let paginated = false;
+
+    if (searchTerm) {
+        currentFilteredProfiles = profilesData.filter(profile => {
+            const nameLower = profile.name.toLowerCase();
+            const titleLower = profile.title.toLowerCase();
+            return nameLower.includes(searchTerm) || titleLower.includes(searchTerm);
+        });
+        const startIndex = (currentPage - 1) * profilesPerPage;
+        const endIndex = startIndex + profilesPerPage;
+        profilesToShow = currentFilteredProfiles.slice(startIndex, endIndex);
+        paginated = true;
+    } else {
+        // ¡AQUÍ EL CAMBIO CLAVE!
+        currentFilteredProfiles = [];
+        profilesToShow = profilesData;
+        paginated = false;
+    }
+
+    renderProfileCards(profilesToShow);
+    updateProfilesCount();
+
+    console.log('profilesData:', profilesData.map(p => p.name)); // DEBUG: Log de perfiles cargados
+    console.log('currentFilteredProfiles:', currentFilteredProfiles.map(p => p.name)); // DEBUG: Log de perfiles filtrados
+    // Mostrar/ocultar controles de paginación
+    const paginationContainer = document.querySelector('.pagination-container');
+    if (paginated) {
+        // Solo si hay búsqueda, muestra y actualiza la paginación
+        paginationContainer.style.display = '';
+        renderPageNumberButtons(currentFilteredProfiles);
+        updatePaginationUI(currentFilteredProfiles);
+    } else {
+        // Si NO hay búsqueda, oculta la paginación
+        paginationContainer.style.display = 'none';
     }
 }
 
-function goToNextPage() {
-    const totalPages = getTotalPages(currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
-   if (currentPage < totalPages) {
-        loadingMessage.classList.remove('hidden'); // Mostrar "Cargando..."
-        setTimeout(() => {
-            currentPage++;
-            displayCurrentPage(currentPage, currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
-            updatePaginationUI(currentFilteredProfiles.length > 0 ? currentFilteredProfiles : profilesData);
-            loadingMessage.classList.add('hidden'); // Ocultar "Cargando..."
-        }, 150); // Un pequeño delay para que se vea el mensaje (opcional)
-    }
+function updateProfilesCount() {
+    const countDiv = document.getElementById('profiles-count');
+    countDiv.textContent = `Total de perfiles: ${profilesData.length}`;
 }
 
-function saveSelectedProfiles() {
-    localStorage.setItem(SELECTED_PROFILES_KEY, JSON.stringify(Array.from(selectedProfileIds)));
+function handleSearch() {
+    currentPage = 1;
+    displayProfiles();
 }
 
-function saveProfilesToLocalStorage() {
-    localStorage.setItem('profilesData', JSON.stringify(profilesData));
-}
+// =====================
+// 4. FUNCIONES DE PERFIL Y SELECCIÓN
+// =====================
 
-function updateSelectedCount() {
-    // Añadimos la clase 'pulsing' para activar la animación
-    selectedProfilesCountDisplay.classList.add('pulsing');
-    selectedProfilesCountDisplay.textContent = `Perfiles seleccionados: ${selectedProfileIds.size}`;
-    // Removemos la clase después de un breve tiempo para que la animación pueda volver a activarse
-    setTimeout(() => {
-        selectedProfilesCountDisplay.classList.remove('pulsing');
-    }, 300); // 300ms es la duración de nuestra animación
-}
 function createProfileCard(profile) {
     const card = document.createElement('div');
     card.classList.add('profile-card'); // ¡Asegúrate de que NO haya un punto aquí!
@@ -151,7 +206,7 @@ function createProfileCard(profile) {
         // Si llegamos aquí, el clic no fue en un botón ni en un enlace,
         // así que manejamos la expansión y selección de la tarjeta.
         console.log('Toggling expanded class and selection logic');
-        card.classList.toggle('expanded');
+        //rd.classList.toggle('expanded');
         const profileName = card.dataset.profileName;
         const wasSelected = selectedProfileIds.has(profileName);
         if (wasSelected) {
@@ -247,11 +302,19 @@ deleteBtn.addEventListener('click', (event) => {
             p.bio === profile.bio
         );
         if (idx !== -1) {
-            profilesData.splice(idx, 1);
-            saveProfilesToLocalStorage();
-            showToast(`Perfil de ${profile.name} eliminado correctamente.`, "success");
-            currentPage = 1; // Opcional: vuelve a la primera página
-            displayProfiles(); // <-- SIEMPRE refresca así
+            // Quita del set de seleccionados si estaba seleccionado
+            selectedProfileIds.delete(profile.name);
+            // Animación de salida
+            card.classList.add('profile-card--exit');
+            setTimeout(() => {
+                profilesData.splice(idx, 1);
+                saveProfilesToLocalStorage();
+                showToast(`Perfil de ${profile.name} eliminado correctamente.`, "success");
+                currentPage = 1;
+                displayProfiles();
+                cleanSelectedProfiles();
+                updateSelectedCount(); // <-- Actualiza el contador después de eliminar
+            }, 300); // Debe coincidir con la duración de la animación CSS
         }
     }
 });
@@ -275,92 +338,52 @@ editBtn.addEventListener('click', (event) => {
     );
     addProfileForm.querySelector('button[type="submit"]').textContent = "Guardar cambios";
     updateProfilesCount();
+    displayProfiles(); // <-- SIEMPRE refresca así
 });
 card.appendChild(editBtn);
 
     return card;
 }
-function renderProfileCards(profilesToRender) {
-    const profilesContainer = document.getElementById('profiles-container');
-    profilesContainer.innerHTML = ''; // <-- Esto limpia el contenedor SIEMPRE
+// =====================
+// 5. FUNCIONES DE UTILIDAD Y LOCALSTORAGE
+// =====================
 
-    loadingMessage.classList.remove('hidden'); // Mostrar "Cargando..." al inicio de la renderización
+function saveSelectedProfiles() {
+    localStorage.setItem(SELECTED_PROFILES_KEY, JSON.stringify(Array.from(selectedProfileIds)));
+}
+
+function saveProfilesToLocalStorage() {
+    localStorage.setItem('profilesData', JSON.stringify(profilesData));
+}
+
+function updateSelectedCount() {
+    selectedProfilesCountDisplay.classList.add('pulsing');
+    selectedProfilesCountDisplay.textContent = `Perfiles seleccionados: ${selectedProfileIds.size}`;
     setTimeout(() => {
-        if (profilesToRender.length === 0) {
-            noResultsMessage.classList.remove('hidden');
-        } else {
-            noResultsMessage.classList.add('hidden');
-            profilesToRender.forEach(profile => {
-                const newCard = createProfileCard(profile);
-                profilesContainer.appendChild(newCard);
-            });
+        selectedProfilesCountDisplay.classList.remove('pulsing');
+    }, 300);
+}
+
+function cleanSelectedProfiles() {
+    // Elimina del set cualquier nombre que ya no esté en profilesData
+    const validNames = new Set(profilesData.map(p => p.name));
+    for (const name of selectedProfileIds) {
+        if (!validNames.has(name)) {
+            selectedProfileIds.delete(name);
         }
-        updateSelectedCount();
-        loadingMessage.classList.add('hidden'); // Ocultar "Cargando..." al finalizar
-    }, 100); // Un pequeño delay para simular carga 
+    }
+    saveSelectedProfiles();
 }
 
-function displayCurrentPage(page, profiles = profilesData) {
-    const startIndex = (page - 1) * profilesPerPage;
-    const endIndex = startIndex + profilesPerPage;
-    const profilesToShow = profiles.slice(startIndex, endIndex);
-    renderProfileCards(profilesToShow);
-}
+// =====================
+// 6. FUNCIONES DE FORMULARIO (AGREGAR/EDITAR)
+// =====================
 
-function handleSearch() {
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    if (searchTerm) {
-        currentFilteredProfiles = profilesData.filter(profile => {
-            const nameLower = profile.name.toLowerCase();
-            const titleLower = profile.title.toLowerCase();
-            return nameLower.includes(searchTerm) || titleLower.includes(searchTerm);
-        });
-    } else {
-        currentFilteredProfiles = [];
-    }
-    currentPage = 1;
-    displayProfiles();
-}
-
-
-searchInput.addEventListener('input', () => {
-    currentPage = 1;
-    displayProfiles();
-});
-
-profilesPerPageSelect.addEventListener('change', () => {
-    profilesPerPage = parseInt(profilesPerPageSelect.value);
-    currentPage = 1;
-    displayProfiles();
-});
-
-
-displayProfiles();
-
-
-
-
-prevPageButton.addEventListener('click', () => {
-    if (currentPage > 1 && searchInput.value.trim()) {
-        currentPage--;
-        displayProfiles();
-    }
-});
-
-nextPageButton.addEventListener('click', () => {
-    const totalPages = getTotalPages(currentFilteredProfiles);
-    if (currentPage < totalPages && searchInput.value.trim()) {
-        currentPage++;
-        displayProfiles();
-    }
-});
-
-// --- Lógica para agregar y editar perfiles manualmente ---
-const addProfileForm = document.getElementById('add-profile-form');
 if (addProfileForm) {
     addProfileForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
+        // Obtén los valores de los campos del formulario
         const name = document.getElementById('new-name').value.trim();
         const title = document.getElementById('new-title').value.trim();
         const image = document.getElementById('new-image').value.trim();
@@ -368,26 +391,11 @@ if (addProfileForm) {
         const twitter = document.getElementById('new-twitter').value.trim();
         const linkedin = document.getElementById('new-linkedin').value.trim();
 
-        // --- Validaciones ---
+        // Validación básica
         if (!name || !title || !image || !bio) {
             showToast("Por favor, completa todos los campos obligatorios.", "error");
             return;
         }
-        try {
-            new URL(image);
-        } catch {
-            showToast("La URL de la imagen no es válida.", "error");
-            return;
-        }
-        if (twitter && !/^https?:\/\/(www\.)?twitter\.com\/.+/.test(twitter)) {
-            showToast("La URL de Twitter debe ser válida (ejemplo: https://twitter.com/usuario).", "error");
-            return;
-        }
-        if (linkedin && !/^https?:\/\/(www\.)?linkedin\.com\/.+/.test(linkedin)) {
-            showToast("La URL de LinkedIn debe ser válida (ejemplo: https://linkedin.com/in/usuario).", "error");
-            return;
-        }
-        // --- Fin validaciones ---
 
         const newProfile = {
             name,
@@ -410,14 +418,16 @@ if (addProfileForm) {
             showToast("Perfil agregado correctamente.", "success");
         }
 
-        saveProfilesToLocalStorage(); // Guarda siempre
-
-        displayProfiles(); // <-- SIEMPRE refresca así
+        saveProfilesToLocalStorage();
+        displayProfiles();
         addProfileForm.reset();
     });
 }
 
-// Función para mostrar notificaciones tipo toast
+// =====================
+// 7. FUNCIONES DE TOAST
+// =====================
+
 function showToast(message, type = "info") {
     const toastContainer = document.getElementById('toast-container');
     const toast = document.createElement('div');
@@ -431,43 +441,47 @@ function showToast(message, type = "info") {
     }, 2500);
 }
 
-function displayProfiles() {
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    let profilesToShow = [];
-    let paginated = false;
+// =====================
+// 8. EVENTOS Y LISTENERS
+// =====================
 
-    if (searchTerm) {
-        // Si hay búsqueda, filtra y pagina
-        currentFilteredProfiles = profilesData.filter(profile => {
-            const nameLower = profile.name.toLowerCase();
-            const titleLower = profile.title.toLowerCase();
-            return nameLower.includes(searchTerm) || titleLower.includes(searchTerm);
-        });
-        const startIndex = (currentPage - 1) * profilesPerPage;
-        const endIndex = startIndex + profilesPerPage;
-        profilesToShow = currentFilteredProfiles.slice(startIndex, endIndex);
-        paginated = true;
-    } else {
-        // Sin búsqueda, muestra todos los perfiles (sin paginación)
-        profilesToShow = profilesData;
-        paginated = false;
+searchIcon.addEventListener('click', () => {
+    searchInput.classList.add('active');
+    searchInput.focus();
+    // Simula el evento de input para disparar la búsqueda
+    currentPage = 1;
+    displayProfiles();
+});
+
+searchInput.addEventListener('input', () => {
+    currentPage = 1;
+    displayProfiles();
+});
+
+profilesPerPageSelect.addEventListener('change', () => {
+    profilesPerPage = parseInt(profilesPerPageSelect.value);
+    currentPage = 1;
+    displayProfiles();
+});
+
+prevPageButton.addEventListener('click', () => {
+    if (currentPage > 1 && searchInput.value.trim()) {
+        currentPage--;
+        displayProfiles();
     }
+});
 
-    renderProfileCards(profilesToShow);
-    updateProfilesCount();
-
-    // Mostrar/ocultar controles de paginación
-    const paginationContainer = document.querySelector('.pagination-container');
-    if (paginationContainer) {
-        paginationContainer.style.display = paginated ? '' : 'none';
+nextPageButton.addEventListener('click', () => {
+    const totalPages = getTotalPages(currentFilteredProfiles);
+    if (currentPage < totalPages && searchInput.value.trim()) {
+        currentPage++;
+        displayProfiles();
     }
-    if (paginated) {
-        renderPageNumberButtons(currentFilteredProfiles);
-        updatePaginationUI(currentFilteredProfiles);
-    }
-}
+});
 
-function updateProfilesCount() {
-    const countDiv = document.getElementById('profiles-count');
-    countDiv.textContent = `Total de perfiles: ${profilesData.length}`;
-}
+// =====================
+// 9. INICIALIZACIÓN
+// =====================
+
+displayProfiles(); // <-- Siempre después de definir todo lo anterior
+

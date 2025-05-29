@@ -1,4 +1,6 @@
-/* Importante: Un "reset" muy básico para evitar inconsistencias */
+/* ===========================
+   1. RESET Y ESTILOS BASE
+   =========================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,8 +8,8 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Una fuente más moderna y suave */
-    background-color: #f7f7f7; /* Un gris aún más claro */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f7f7;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -16,53 +18,95 @@ body {
     padding: 10px;
 }
 
-.search-container {
+/* ===========================
+   2. BARRA DE BÚSQUEDA Y LUPA
+   =========================== */
+
+/* Wrapper para alinear barra, botón "X" y lupa */
+.search-bar-wrapper {
+    display: flex;
+    align-items: center;
     width: 100%;
     max-width: 600px;
-    margin: 10px auto 18px auto;
-    text-align: center;
-    padding: 0 8px;
+    margin: 0 auto 18px auto;
+}
+
+/* Contenedor del input y botón "X" */
+.search-container {
     position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+/* Input de búsqueda */
+#search-input {
+    width: 100%;
+    padding: 10px 38px 10px 12px; /* padding-right para el botón "X" */
+    border-radius: 6px 0 0 6px;
+    border: 1px solid #bbb;
+    font-size: 1em;
+    transition: border 0.2s;
+    box-sizing: border-box;
+    background: #fff;
+}
+
+/* Botón "X" para limpiar búsqueda */
+.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    color: #aaa;
+    cursor: pointer;
+    padding: 0 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    order: 0; /* Siempre arriba */
+    line-height: 1;
+    border-radius: 50%;
+    transition: background 0.2s, color 0.2s;
+    z-index: 2;
+    height: 28px;
+    width: 28px;
 }
-
-#search-input {
-    flex-grow: 1;
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px 0 0 8px;
-    font-size: 16px;
+.clear-search-btn:hover, .clear-search-btn:focus {
+    background: #f2f2f2;
+    color: #d32f2f;
     outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+/* Lupa fuera del input, alineada a la derecha */
 .search-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
-    background: none;
-    border: none;
-    outline: none;
-    border-radius: 0 8px 8px 0;
+    background: #fff;
+    border: 1px solid #bbb;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    height: 40px;
+    width: 44px;
+    margin-left: -1px; /* Une visualmente con el input */
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, border 0.2s;
 }
-
 .search-icon:hover, .search-icon:focus {
     background: #f0f0f0;
+    border-color: #007bff;
 }
-
 .search-icon svg {
-    display: block;
     width: 22px;
     height: 22px;
+    display: block;
 }
 
+/* ===========================
+   3. MENSAJES Y CONTADORES
+   =========================== */
 #no-results-message {
     text-align: center;
     color: #888;
@@ -78,17 +122,26 @@ body {
     color: #007bff;
     transition: transform 0.2s ease-in-out;
 }
-
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
 }
-
 .count-display.pulsing {
     animation: pulse 0.3s ease-in-out;
 }
 
+.profiles-count {
+    margin: 10px auto 10px auto;
+    text-align: center;
+    font-size: 1.1em;
+    color: #007bff;
+    font-weight: 500;
+}
+
+/* ===========================
+   4. CONTENEDOR DE PERFILES
+   =========================== */
 #profiles-container {
     display: flex;
     flex-direction: column;
@@ -101,20 +154,45 @@ body {
     order: 1;
 }
 
+/* ===========================
+   5. TARJETAS DE PERFIL
+   =========================== */
 .profile-card {
-    background-color: #fff; /* Fondo blanco */
-    border-radius: 8px; /* Bordes un poco menos pronunciados */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); /* Sombra más suave */
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
     padding: 20px;
     width: 320px;
     text-align: center;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    cursor: pointer; /* Añade el cursor de "mano" */
-    position: relative; /* Necesario para posicionar el ::before absolutamente dentro */
-    overflow: hidden; /* Asegura que el overlay no se salga de los bordes redondeados */
-    border: 1px solid #ddd; /* Añadimos un borde sutil por defecto */
+    transition: opacity 0.3s, transform 0.3s, max-height 0.3s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    opacity: 1;
+    transform: scale(1);
+    max-height: 180px;
 }
 
+/* Animación de entrada */
+.profile-card--enter {
+    opacity: 0;
+    transform: scale(0.95);
+}
+/* Animación de salida */
+.profile-card--exit {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.3s, transform 0.3s;
+}
+/* Expansión suave al hover */
+.profile-card:hover {
+    max-height: 500px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    border-color: #007bff;
+    transform: translateY(-3px);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
+}
 .profile-card::before {
     content: '';
     position: absolute;
@@ -122,85 +200,77 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0); /* Inicialmente transparente */
+    background-color: rgba(0, 0, 0, 0);
     transition: background-color 0.2s ease-in-out;
     z-index: 1;
-    pointer-events: none; /* ¡NUEVO! Permite que los clics pasen a través */
+    pointer-events: none;
 }
-
 .profile-card:hover::before {
-    background-color: rgba(0, 0, 0, 0.05); /* Un ligero overlay oscuro al hacer hover */
-    
+    background-color: rgba(0, 0, 0, 0.05);
+}
+/* Tarjeta seleccionada */
+.profile-card.selected {
+    border: 2px solid #28a745;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+    transform: translateY(-3px);
 }
 
-.profile-card:hover{
-     border-color: #007bff; /* Cambiamos el color del borde al hacer hover */
-}
-
-
+/* ===========================
+   6. CONTENIDO DE LA TARJETA
+   =========================== */
 .profile-image {
     width: 100px;
     height: 100px;
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 15px;
-    border: 2px solid #007bff; /* Borde más delgado */
+    border: 2px solid #007bff;
 }
-
 .profile-name {
-    font-size: 22px; /* Ligeramente más pequeño y suave */
-    color: #444; /* Un tono de gris más suave */
+    font-size: 22px;
+    color: #444;
     margin-bottom: 5px;
 }
-
 .profile-title {
     font-size: 14px;
-    color: #777; /* Un gris más claro */
+    color: #777;
     margin-bottom: 15px;
 }
-
 .profile-bio {
     font-size: 14px;
-    color: #555; /* Un gris más suave */
-    line-height: 1.6; /* Ligeramente más espacio entre líneas */
+    color: #555;
+    line-height: 1.6;
     margin-bottom: 20px;
     max-height: 80px;
     overflow: hidden;
     transition: max-height 0.3s ease-in-out;
-    text-align: left; /* Alinea la biografía a la izquierda para mejor lectura */
+    text-align: left;
 }
-
 .profile-card.expanded .profile-bio {
-    max-height: none; /* Remueve la limitación de altura al expandir */
-    overflow: visible; /* Muestra todo el contenido */
+    max-height: none;
+    overflow: visible;
 }
-
 .profile-social {
     margin-top: 15px;
 }
-
 .profile-social ul {
     list-style: none;
     display: flex;
     justify-content: center;
     margin-bottom: 15px;
 }
-
 .profile-social li {
     margin: 0 8px;
 }
-
 .profile-social a {
     text-decoration: none;
     color: #007bff;
-    font-weight: normal; /* Letras de los enlaces sociales menos pesadas */
+    font-weight: normal;
     transition: color 0.3s ease;
 }
-
 .profile-social a:hover {
     color: #0056b3;
 }
-
 .profile-button {
     background-color: #007bff;
     color: #fff;
@@ -208,295 +278,16 @@ body {
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 15px; /* Tamaño de fuente un poco más pequeño */
+    font-size: 15px;
     transition: background-color 0.3s ease;
 }
-
 .profile-button:hover {
     background-color: #0056b3;
 }
 
-/* Estilo para la tarjeta cuando está seleccionada */
-.profile-card.selected {
-    border: 2px solid #28a745; /* Borde de selección más suave */
-    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2); /* Sombra de selección más suave */
-    transform: translateY(-3px); /* Menos elevación */
-}
-
-.profile-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1); /* Hover más suave */
-}
-
-.hidden {
-    display: none;
-}
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 10px;
-}
-
-.pagination-container button {
-    padding: 8px 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f8f8f8;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.pagination-container button:hover {
-    background-color: #eee;
-}
-
-.pagination-container span {
-    font-size: 1em;
-}
-
-#page-numbers {
-    display: flex;
-    gap: 5px;
-}
-
-.page-number-button {
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f8f8f8;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.page-number-button:hover {
-    background-color: #eee;
-}
-
-.page-number-button.active {
-    background-color: #007bff;
-    color: white;
-    border-color: #007bff;
-}
-
-.pagination-container button:disabled {
-    background-color: #ddd;
-    color: #888;
-    cursor: not-allowed;
-    border-color: #ddd;
-}
-
-#loading-message {
-    text-align: center;
-    margin-top: 20px;
-    font-style: italic;
-    color: #888;
-}
-
-.pagination-settings {
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 0.9em;
-    color: #555;
-}
-
-#profiles-per-page {
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    cursor: pointer;
-}
-
-/* --- MOBILE FIRST: Barra de búsqueda arriba, tarjetas debajo, paginación al final --- */
-
-/* Estructura base para mobile */
-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    padding: 10px;
-}
-
-.search-container {
-    width: 100%;
-    max-width: 600px;
-    margin: 10px auto 18px auto;
-    text-align: center;
-    padding: 0 8px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    order: 0; /* Siempre arriba */
-}
-
-#search-input {
-    flex-grow: 1;
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px 0 0 8px;
-    font-size: 16px;
-    outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.search-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    background: none;
-    border: none;
-    outline: none;
-    border-radius: 0 8px 8px 0;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.search-icon:hover, .search-icon:focus {
-    background: #f0f0f0;
-}
-
-.search-icon svg {
-    display: block;
-    width: 22px;
-    height: 22px;
-}
-
-#profiles-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto 0 auto;
-    padding: 0 0 10px 0;
-    order: 1;
-}
-
-.pagination-container,
-.pagination-settings,
-.count-display {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto 10px auto;
-    order: 2;
-}
-
-/* --- Desktop/tablet: barra de búsqueda sigue arriba, tarjetas en grid --- */
-@media (min-width: 601px) {
-    #profiles-container {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 30px;
-        padding: 20px;
-    }
-    .profile-card {
-        width: 320px;
-    }
-}
-
-/* --- Ajustes para pantallas medianas --- */
-@media (max-width: 992px) {
-    .search-container {
-        max-width: 98vw;
-        margin-bottom: 15px;
-        padding: 0 8px;
-    }
-    #profiles-container {
-        gap: 16px;
-        padding: 8px;
-    }
-    .profile-card {
-        width: 98vw;
-        max-width: 380px;
-    }
-}
-
-/* --- Ajustes para pantallas pequeñas --- */
-@media (max-width: 600px) {
-    .search-container {
-        flex-direction: row;
-        max-width: 100vw;
-        margin-bottom: 12px;
-        padding: 0 2px;
-    }
-    #profiles-container {
-        gap: 12px;
-        padding: 0;
-    }
-    .profile-card {
-        width: 98vw;
-        max-width: 99vw;
-        padding: 10px;
-    }
-    .pagination-container,
-    .pagination-settings,
-    .count-display {
-        max-width: 99vw;
-        margin-bottom: 10px;
-    }
-}
-
-/* Formulario para agregar perfiles */
-.add-profile-container {
-    width: 100%;
-    max-width: 600px;
-    margin: 20px auto 18px auto;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    padding: 18px 20px 12px 20px;
-}
-
-#add-profile-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-#add-profile-form h2 {
-    margin-bottom: 8px;
-    font-size: 1.2em;
-    color: #007bff;
-}
-
-#add-profile-form input,
-#add-profile-form textarea {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1em;
-    resize: none;
-}
-
-#add-profile-form textarea {
-    min-height: 60px;
-    max-height: 180px;
-}
-
-#add-profile-form button[type="submit"] {
-    background: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 0;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-#add-profile-form button[type="submit"]:hover {
-    background: #0056b3;
-}
-
+/* ===========================
+   7. BOTONES DE ACCIÓN EN TARJETA
+   =========================== */
 .delete-profile-btn {
     background: #ff4d4f;
     color: #fff;
@@ -511,7 +302,6 @@ body {
 .delete-profile-btn:hover {
     background: #d9363e;
 }
-
 .edit-profile-btn {
     background: #ffc107;
     color: #333;
@@ -528,6 +318,117 @@ body {
     background: #e0a800;
 }
 
+/* ===========================
+   8. PAGINACIÓN Y AJUSTES
+   =========================== */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 10px auto;
+    order: 2;
+}
+.pagination-container button,
+.page-number-button {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f8f8;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.pagination-container button:hover,
+.page-number-button:hover {
+    background-color: #eee;
+}
+.page-number-button.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+.pagination-container button:disabled {
+    background-color: #ddd;
+    color: #888;
+    cursor: not-allowed;
+    border-color: #ddd;
+}
+#page-numbers {
+    display: flex;
+    gap: 5px;
+}
+.pagination-settings {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    color: #555;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 10px auto;
+    order: 2;
+}
+#profiles-per-page {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+/* ===========================
+   9. FORMULARIO DE AGREGAR PERFIL
+   =========================== */
+.add-profile-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto 18px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    padding: 18px 20px 12px 20px;
+}
+#add-profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+#add-profile-form h2 {
+    margin-bottom: 8px;
+    font-size: 1.2em;
+    color: #007bff;
+}
+#add-profile-form input,
+#add-profile-form textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1em;
+    resize: none;
+}
+#add-profile-form textarea {
+    min-height: 60px;
+    max-height: 180px;
+}
+#add-profile-form button[type="submit"] {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 0;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+#add-profile-form button[type="submit"]:hover {
+    background: #0056b3;
+}
+
+/* ===========================
+   10. TOASTS Y MENSAJES
+   =========================== */
 #toast-container {
     position: fixed;
     bottom: 30px;
@@ -539,7 +440,6 @@ body {
     align-items: center;
     pointer-events: none;
 }
-
 .toast {
     background: #222;
     color: #fff;
@@ -552,7 +452,6 @@ body {
     animation: fadeInOut 2.5s;
     pointer-events: auto;
 }
-
 @keyframes fadeInOut {
     0% { opacity: 0; transform: translateY(30px);}
     10% { opacity: 0.95; transform: translateY(0);}
@@ -560,10 +459,60 @@ body {
     100% { opacity: 0; transform: translateY(-30px);}
 }
 
-.profiles-count {
-    margin: 10px auto 10px auto;
-    text-align: center;
-    font-size: 1.1em;
-    color: #007bff;
-    font-weight: 500;
+/* ===========================
+   11. UTILIDADES Y RESPONSIVE
+   =========================== */
+.hidden {
+    display: none;
+}
+
+/* --- Desktop/tablet: tarjetas en grid --- */
+@media (min-width: 601px) {
+    #profiles-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px;
+        padding: 20px;
+    }
+    .profile-card {
+        width: 320px;
+    }
+}
+
+/* --- Ajustes para pantallas medianas --- */
+@media (max-width: 992px) {
+    .search-bar-wrapper,
+    .pagination-container,
+    .pagination-settings,
+    .count-display {
+        max-width: 98vw;
+    }
+    #profiles-container {
+        gap: 16px;
+        padding: 8px;
+    }
+    .profile-card {
+        width: 98vw;
+        max-width: 380px;
+    }
+}
+
+/* --- Ajustes para pantallas pequeñas --- */
+@media (max-width: 600px) {
+    .search-bar-wrapper,
+    .pagination-container,
+    .pagination-settings,
+    .count-display {
+        max-width: 99vw;
+    }
+    #profiles-container {
+        gap: 12px;
+        padding: 0;
+    }
+    .profile-card {
+        width: 98vw;
+        max-width: 99vw;
+        padding: 10px;
+    }
 }
