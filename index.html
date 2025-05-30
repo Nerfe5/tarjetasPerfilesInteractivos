@@ -38,7 +38,6 @@
       </svg>
     </span> </div>
 
-
     <div class="pagination-settings">
         Mostrar:
         <select id="profiles-per-page">
@@ -48,9 +47,18 @@
         </select> perfiles por página
     </div>
 
+ 
+    <div class="import-export-container">
+  <button id="export-csv-btn" class="export-btn">Exportar seleccionados a CSV</button>
+  <input type="file" id="import-file-input" accept=".csv,.json" style="display:none;">
+  <button id="import-btn" class="import-btn">Importar perfiles</button>
+</div>
+
+  
     <div id="profiles-container">
         </div>
 
+        
     <div id="loading-message" class="hidden">Cargando perfiles...</div>
 
     <div id="no-results-message" class="hidden">No se encontraron perfiles.</div>
@@ -73,6 +81,8 @@
     Mostrar solo favoritos
   </label>
 </div>
+
+  
 
     <!-- Modal de confirmación -->
 <div id="confirm-modal" class="modal hidden">

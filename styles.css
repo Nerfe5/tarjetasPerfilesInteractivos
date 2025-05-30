@@ -279,7 +279,7 @@ body.dark-mode .clear-search-btn:focus {
 /* Tarjeta seleccionada */
 .profile-card.selected {
     border: 2px solid var(--color-accent);
-    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+    box-shadow: 0 4px 8px rgba(0,167,69,0.2);
     transform: translateY(-3px);
 }
 
@@ -702,4 +702,42 @@ body.dark-mode .clear-search-btn:focus {
 .theme-toggle-btn:focus {
   color: #ffb300;
   outline: none;
+}
+/* ===========================
+   13. IMPORTAR/EXPORTAR PERFIL
+   =========================== */
+.export-btn {
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.export-btn:hover {
+    background: var(--color-primary-dark);
+}
+.import-export-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 24px auto 18px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+}
+.import-btn {
+    background: var(--color-accent, #28a745);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 22px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.import-btn:hover {
+    background: #218838;
 }

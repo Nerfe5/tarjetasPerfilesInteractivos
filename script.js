@@ -33,6 +33,11 @@ const favoriteProfileIds = new Set(JSON.parse(localStorage.getItem(FAVORITE_PROF
 
 const clearSearchBtn = document.getElementById('clear-search');
 
+const exportCsvBtn = document.getElementById('export-csv-btn');
+if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', exportSelectedProfilesToCSV);
+}
+
 searchInput.addEventListener('input', () => {
     currentPage = 1;
     displayProfiles();
@@ -373,6 +378,13 @@ function createProfileCard(profile) {
 }
 
 
+
+function updateExportBtnVisibility() {
+    if (exportCsvBtn) {
+        exportCsvBtn.style.display = selectedProfileIds.size > 0 ? 'inline-block' : 'none';
+    }
+}
+
 // =====================
 // 5. FUNCIONES DE UTILIDAD Y LOCALSTORAGE
 // =====================
@@ -391,7 +403,10 @@ function updateSelectedCount() {
     setTimeout(() => {
         selectedProfilesCountDisplay.classList.remove('pulsing');
     }, 300);
+    updateExportBtnVisibility();
 }
+
+
 
 function cleanSelectedProfiles() {
     // Elimina del set cualquier nombre que ya no esté en profilesData
@@ -408,6 +423,113 @@ function saveFavoriteProfiles() {
     localStorage.setItem(FAVORITE_PROFILES_KEY, JSON.stringify(Array.from(favoriteProfileIds)));
 }
 
+function exportSelectedProfilesToCSV() {
+    // Filtra los perfiles seleccionados
+    const selectedProfiles = profilesData.filter(profile => selectedProfileIds.has(profile.name));
+    if (!selectedProfiles.length) {
+        showToast("No hay perfiles seleccionados para exportar.", "error");
+        return;
+    }
+
+    const headers = ["name", "title", "image", "bio", "twitter", "linkedin"];
+    const csvRows = [headers.join(",")];
+
+    selectedProfiles.forEach(profile => {
+        const row = headers.map(key => {
+            let value = profile[key] || "";
+            value = String(value).replace(/"/g, '""');
+            if (value.includes(",") || value.includes('"') || value.includes('\n')) {
+                value = `"${value}"`;
+            }
+            return value;
+        });
+        csvRows.push(row.join(","));
+    });
+
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "perfiles_seleccionados.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+const importBtn = document.getElementById('import-btn');
+const importFileInput = document.getElementById('import-file-input');
+
+if (importBtn && importFileInput) {
+    importBtn.addEventListener('click', () => {
+        importFileInput.value = ''; // Limpia selección previa
+        importFileInput.click();
+    });
+
+    importFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            let importedProfiles = [];
+            try {
+                if (file.name.endsWith('.json')) {
+                    importedProfiles = JSON.parse(event.target.result);
+                } else if (file.name.endsWith('.csv')) {
+                    importedProfiles = parseCSVProfiles(event.target.result);
+                } else {
+                    showToast("Formato de archivo no soportado.", "error");
+                    return;
+                }
+            } catch (err) {
+                showToast("Error al leer el archivo.", "error");
+                return;
+            }
+
+            // Filtra duplicados por nombre
+            let addedCount = 0;
+            importedProfiles.forEach(profile => {
+                if (
+                    profile.name &&
+                    !profilesData.some(p => p.name === profile.name)
+                ) {
+                    profilesData.unshift(profile);
+                    addedCount++;
+                }
+            });
+
+            if (addedCount > 0) {
+                saveProfilesToLocalStorage();
+                displayProfiles();
+                showToast(`Se importaron ${addedCount} perfiles.`, "success");
+            } else {
+                showToast("No se importaron perfiles nuevos.", "info");
+            }
+        };
+
+        reader.readAsText(file);
+    });
+}
+
+// Función para parsear CSV a objetos de perfil
+function parseCSVProfiles(csvText) {
+    const lines = csvText.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.trim());
+    const profiles = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split(',');
+        const profile = {};
+        headers.forEach((header, idx) => {
+            profile[header] = row[idx] ? row[idx].replace(/^"|"$/g, '').replace(/""/g, '"') : '';
+        });
+        profiles.push(profile);
+    }
+    return profiles;
+}
 // =====================
 // 6. FUNCIONES DE FORMULARIO (AGREGAR/EDITAR)
 // =====================
@@ -568,4 +690,4 @@ themeToggleBtn.addEventListener('click', () => {
 });
 
 displayProfiles(); // <-- Siempre después de definir todo lo anterior
-
+updateExportBtnVisibility(); // Actualiza la visibilidad del botón de exportación al cargar
