@@ -364,6 +364,15 @@ function createProfileCard(profile) {
     actionsDiv.appendChild(editBtn);
     actionsDiv.appendChild(deleteBtn);
 
+
+    const detailBtn = document.createElement('button');
+detailBtn.classList.add('detail-profile-btn');
+detailBtn.textContent = "Ver más";
+detailBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    showProfileDetailModal(profile);
+});
+
     // Añade los elementos al card en el orden correcto
     card.appendChild(favoriteBtn); // Estrella arriba a la derecha
     card.appendChild(img);
@@ -372,7 +381,11 @@ function createProfileCard(profile) {
     card.appendChild(bio);
     card.appendChild(socialDiv);
     card.appendChild(button);      // Botón Contactar
+    card.appendChild(detailBtn);   // Botón Ver más
     card.appendChild(actionsDiv);  // Botones Editar y Eliminar debajo
+
+
+
 
     return card;
 }
@@ -530,6 +543,29 @@ function parseCSVProfiles(csvText) {
     }
     return profiles;
 }
+
+function showProfileDetailModal(profile) {
+    const modal = document.getElementById('profile-detail-modal');
+    const content = document.getElementById('profile-detail-content');
+    content.innerHTML = `
+        <div class="profile-detail-modal-content">
+            <img src="${profile.image}" alt="Foto de perfil de ${profile.name}" style="width:120px;height:120px;border-radius:50%;margin-bottom:16px;">
+            <h2>${profile.name}</h2>
+            <h3>${profile.title}</h3>
+            <p style="margin:16px 0;">${profile.bio}</p>
+            <div>
+                ${profile.twitter ? `<a href="${profile.twitter}" target="_blank">Twitter</a>` : ''}
+                ${profile.linkedin ? `<a href="${profile.linkedin}" target="_blank">LinkedIn</a>` : ''}
+            </div>
+        </div>
+    `;
+    modal.classList.remove('hidden');
+}
+
+// Cerrar modal
+document.getElementById('close-detail-modal').addEventListener('click', () => {
+    document.getElementById('profile-detail-modal').classList.add('hidden');
+});
 // =====================
 // 6. FUNCIONES DE FORMULARIO (AGREGAR/EDITAR)
 // =====================
