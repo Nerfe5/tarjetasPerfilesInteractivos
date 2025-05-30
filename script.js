@@ -28,6 +28,9 @@ const SELECTED_PROFILES_KEY = 'selectedProfiles';
 const selectedProfileIds = new Set(JSON.parse(localStorage.getItem(SELECTED_PROFILES_KEY)) || []);
 const searchIcon = document.querySelector('.search-icon');
 
+const FAVORITE_PROFILES_KEY = 'favoriteProfiles';
+const favoriteProfileIds = new Set(JSON.parse(localStorage.getItem(FAVORITE_PROFILES_KEY)) || []);
+
 const clearSearchBtn = document.getElementById('clear-search');
 
 searchInput.addEventListener('input', () => {
@@ -123,14 +126,26 @@ function renderProfileCards(profilesToRender) {
     }, 100);
 }
 
+const showFavoritesOnlyCheckbox = document.getElementById('show-favorites-only');
+if (showFavoritesOnlyCheckbox) {
+    showFavoritesOnlyCheckbox.addEventListener('change', () => {
+        displayProfiles();
+    });
+}
+
 function displayProfiles() {
-    // Decide qué perfiles mostrar según búsqueda y paginación
     const searchTerm = searchInput.value.trim().toLowerCase();
     let profilesToShow = [];
     let paginated = false;
 
+    // Filtrar favoritos si está activado
+    let baseProfiles = profilesData;
+    if (showFavoritesOnlyCheckbox && showFavoritesOnlyCheckbox.checked) {
+        baseProfiles = profilesData.filter(p => favoriteProfileIds.has(p.name));
+    }
+
     if (searchTerm) {
-        currentFilteredProfiles = profilesData.filter(profile => {
+        currentFilteredProfiles = baseProfiles.filter(profile => {
             const nameLower = profile.name.toLowerCase();
             const titleLower = profile.title.toLowerCase();
             return nameLower.includes(searchTerm) || titleLower.includes(searchTerm);
@@ -140,17 +155,14 @@ function displayProfiles() {
         profilesToShow = currentFilteredProfiles.slice(startIndex, endIndex);
         paginated = true;
     } else {
-        // ¡AQUÍ EL CAMBIO CLAVE!
         currentFilteredProfiles = [];
-        profilesToShow = profilesData;
+        profilesToShow = baseProfiles;
         paginated = false;
     }
 
     renderProfileCards(profilesToShow);
     updateProfilesCount();
 
-    console.log('profilesData:', profilesData.map(p => p.name)); // DEBUG: Log de perfiles cargados
-    console.log('currentFilteredProfiles:', currentFilteredProfiles.map(p => p.name)); // DEBUG: Log de perfiles filtrados
     // Mostrar/ocultar controles de paginación
     const paginationContainer = document.querySelector('.pagination-container');
     if (paginated) {
@@ -179,37 +191,25 @@ function handleSearch() {
 // =====================
 
 function createProfileCard(profile) {
+    // Crea el contenedor principal de la tarjeta
     const card = document.createElement('div');
-    card.classList.add('profile-card'); // ¡Asegúrate de que NO haya un punto aquí!
+    card.classList.add('profile-card');
     card.dataset.profileName = profile.name;
 
+    // Marca como seleccionada si corresponde
     if (selectedProfileIds.has(profile.name)) {
         card.classList.add('selected');
     }
 
-    // Listener de clic para la tarjeta
+    // Listener para seleccionar/deseleccionar la tarjeta
     card.addEventListener('click', (event) => {
         const clickedElement = event.target;
-
-        // DEBUG: Loguear el elemento clickeado
-        console.log('Clicked Element:', clickedElement);
-        console.log('Is button:', clickedElement.classList.contains('profile-button'));
-        console.log('Is link or inside link:', clickedElement.closest('a'));
-
-        // Si el elemento clickeado es el botón de contactar o un enlace (o un elemento dentro de un enlace),
-        // salimos de este listener para permitir que su funcionalidad nativa o específica actúe.
+        // Evita seleccionar si se hace clic en un botón o enlace
         if (clickedElement.classList.contains('profile-button') || clickedElement.closest('a')) {
-            console.log('Clicked interactive element (button or link), preventing card action.');
-            return; // Detener la ejecución del listener de la tarjeta
+            return;
         }
-
-        // Si llegamos aquí, el clic no fue en un botón ni en un enlace,
-        // así que manejamos la expansión y selección de la tarjeta.
-        console.log('Toggling expanded class and selection logic');
-        //rd.classList.toggle('expanded');
         const profileName = card.dataset.profileName;
-        const wasSelected = selectedProfileIds.has(profileName);
-        if (wasSelected) {
+        if (selectedProfileIds.has(profileName)) {
             selectedProfileIds.delete(profileName);
             card.classList.remove('selected');
         } else {
@@ -220,27 +220,31 @@ function createProfileCard(profile) {
         saveSelectedProfiles();
     });
 
+    // Imagen de perfil
     const img = document.createElement('img');
     img.classList.add('profile-image');
     img.src = profile.image;
     img.alt = `Foto de perfil de ${profile.name}`;
 
+    // Nombre
     const name = document.createElement('h2');
     name.classList.add('profile-name');
     name.textContent = profile.name;
 
+    // Título
     const title = document.createElement('h3');
     title.classList.add('profile-title');
     title.textContent = profile.title;
 
+    // Biografía
     const bio = document.createElement('p');
     bio.classList.add('profile-bio');
     bio.textContent = profile.bio;
 
+    // Redes sociales
     const socialDiv = document.createElement('div');
     socialDiv.classList.add('profile-social');
     const socialList = document.createElement('ul');
-
     if (profile.twitter) {
         const li = document.createElement('li');
         const a = document.createElement('a');
@@ -263,13 +267,13 @@ function createProfileCard(profile) {
     }
     socialDiv.appendChild(socialList);
 
+    // Botón Contactar
     const button = document.createElement('button');
     button.classList.add('profile-button');
     button.textContent = "Contactar";
-
     let contactSent = false;
     button.addEventListener('click', (event) => {
-        event.stopPropagation(); // ¡MUY IMPORTANTE! Detiene la propagación para que el listener de la tarjeta no se active.
+        event.stopPropagation();
         contactSent = !contactSent;
         if (contactSent) {
             button.textContent = "Contacto Enviado ✅";
@@ -278,72 +282,97 @@ function createProfileCard(profile) {
             button.textContent = "Contactar";
             button.classList.remove('sent');
         }
-        console.log('Contact button clicked!'); // DEBUG: Log para el botón
     });
 
+    // Botón de favorito (estrella)
+    const favoriteBtn = document.createElement('button');
+    favoriteBtn.classList.add('favorite-btn');
+    favoriteBtn.title = "Marcar como favorito";
+    favoriteBtn.innerHTML = favoriteProfileIds.has(profile.name) ? '★' : '☆';
+    favoriteBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (favoriteProfileIds.has(profile.name)) {
+            favoriteProfileIds.delete(profile.name);
+            favoriteBtn.innerHTML = '☆';
+        } else {
+            favoriteProfileIds.add(profile.name);
+            favoriteBtn.innerHTML = '★';
+        }
+        saveFavoriteProfiles();
+    });
+
+    // Botón Editar
+    const editBtn = document.createElement('button');
+    editBtn.classList.add('edit-profile-btn');
+    editBtn.textContent = "Editar";
+    editBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        document.getElementById('new-name').value = profile.name;
+        document.getElementById('new-title').value = profile.title;
+        document.getElementById('new-image').value = profile.image;
+        document.getElementById('new-bio').value = profile.bio;
+        document.getElementById('new-twitter').value = profile.twitter || '';
+        document.getElementById('new-linkedin').value = profile.linkedin || '';
+        addProfileForm.dataset.editingIndex = profilesData.findIndex(p =>
+            p.name === profile.name &&
+            p.title === profile.title &&
+            p.bio === profile.bio
+        );
+        addProfileForm.querySelector('button[type="submit"]').textContent = "Guardar cambios";
+        updateProfilesCount();
+        displayProfiles();
+    });
+
+    // Botón Eliminar
+    const deleteBtn = document.createElement('button');
+    deleteBtn.classList.add('delete-profile-btn');
+    deleteBtn.textContent = "Eliminar";
+    deleteBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        showConfirmModal(`¿Seguro que deseas eliminar el perfil de ${profile.name}?`, (confirmed) => {
+            if (confirmed) {
+                const idx = profilesData.findIndex(p =>
+                    p.name === profile.name &&
+                    p.title === profile.title &&
+                    p.bio === profile.bio
+                );
+                if (idx !== -1) {
+                    selectedProfileIds.delete(profile.name);
+                    card.classList.add('profile-card--exit');
+                    setTimeout(() => {
+                        profilesData.splice(idx, 1);
+                        saveProfilesToLocalStorage();
+                        showToast(`Perfil de ${profile.name} eliminado correctamente.`, "success");
+                        currentPage = 1;
+                        displayProfiles();
+                        cleanSelectedProfiles();
+                        updateSelectedCount();
+                    }, 300);
+                }
+            }
+        });
+    });
+
+    // Contenedor para los botones de acción (editar y eliminar)
+    const actionsDiv = document.createElement('div');
+    actionsDiv.classList.add('profile-actions');
+    actionsDiv.appendChild(editBtn);
+    actionsDiv.appendChild(deleteBtn);
+
+    // Añade los elementos al card en el orden correcto
+    card.appendChild(favoriteBtn); // Estrella arriba a la derecha
     card.appendChild(img);
     card.appendChild(name);
     card.appendChild(title);
     card.appendChild(bio);
     card.appendChild(socialDiv);
-    card.appendChild(button);
-
-    // Botones de eliminar y editar
-
-const deleteBtn = document.createElement('button');
-deleteBtn.classList.add('delete-profile-btn');
-deleteBtn.textContent = "Eliminar";
-deleteBtn.addEventListener('click', (event) => {
-    event.stopPropagation();
-    if (confirm(`¿Seguro que deseas eliminar el perfil de ${profile.name}?`)) {
-        const idx = profilesData.findIndex(p =>
-            p.name === profile.name &&
-            p.title === profile.title &&
-            p.bio === profile.bio
-        );
-        if (idx !== -1) {
-            // Quita del set de seleccionados si estaba seleccionado
-            selectedProfileIds.delete(profile.name);
-            // Animación de salida
-            card.classList.add('profile-card--exit');
-            setTimeout(() => {
-                profilesData.splice(idx, 1);
-                saveProfilesToLocalStorage();
-                showToast(`Perfil de ${profile.name} eliminado correctamente.`, "success");
-                currentPage = 1;
-                displayProfiles();
-                cleanSelectedProfiles();
-                updateSelectedCount(); // <-- Actualiza el contador después de eliminar
-            }, 300); // Debe coincidir con la duración de la animación CSS
-        }
-    }
-});
-card.appendChild(deleteBtn);
-
-const editBtn = document.createElement('button');
-editBtn.classList.add('edit-profile-btn');
-editBtn.textContent = "Editar";
-editBtn.addEventListener('click', (event) => {
-    event.stopPropagation();
-    document.getElementById('new-name').value = profile.name;
-    document.getElementById('new-title').value = profile.title;
-    document.getElementById('new-image').value = profile.image;
-    document.getElementById('new-bio').value = profile.bio;
-    document.getElementById('new-twitter').value = profile.twitter || '';
-    document.getElementById('new-linkedin').value = profile.linkedin || '';
-    addProfileForm.dataset.editingIndex = profilesData.findIndex(p =>
-        p.name === profile.name &&
-        p.title === profile.title &&
-        p.bio === profile.bio
-    );
-    addProfileForm.querySelector('button[type="submit"]').textContent = "Guardar cambios";
-    updateProfilesCount();
-    displayProfiles(); // <-- SIEMPRE refresca así
-});
-card.appendChild(editBtn);
+    card.appendChild(button);      // Botón Contactar
+    card.appendChild(actionsDiv);  // Botones Editar y Eliminar debajo
 
     return card;
 }
+
+
 // =====================
 // 5. FUNCIONES DE UTILIDAD Y LOCALSTORAGE
 // =====================
@@ -373,6 +402,10 @@ function cleanSelectedProfiles() {
         }
     }
     saveSelectedProfiles();
+}
+
+function saveFavoriteProfiles() {
+    localStorage.setItem(FAVORITE_PROFILES_KEY, JSON.stringify(Array.from(favoriteProfileIds)));
 }
 
 // =====================
@@ -441,6 +474,30 @@ function showToast(message, type = "info") {
     }, 2500);
 }
 
+// Modal de confirmación reutilizable
+function showConfirmModal(message, onConfirm) {
+    const modal = document.getElementById('confirm-modal');
+    const msg = document.getElementById('confirm-modal-message');
+    const yesBtn = document.getElementById('confirm-modal-yes');
+    const noBtn = document.getElementById('confirm-modal-no');
+
+    msg.textContent = message;
+    modal.classList.remove('hidden');
+
+    // Limpia listeners previos
+    yesBtn.onclick = null;
+    noBtn.onclick = null;
+
+    yesBtn.onclick = () => {
+        modal.classList.add('hidden');
+        onConfirm(true);
+    };
+    noBtn.onclick = () => {
+        modal.classList.add('hidden');
+        onConfirm(false);
+    };
+}
+
 // =====================
 // 8. EVENTOS Y LISTENERS
 // =====================
@@ -482,6 +539,33 @@ nextPageButton.addEventListener('click', () => {
 // =====================
 // 9. INICIALIZACIÓN
 // =====================
+const themeToggleBtn = document.getElementById('theme-toggle');
+
+// Cargar preferencia de tema
+function applyTheme(theme) {
+    if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggleBtn.textContent = '☀️';
+    } else {
+        document.body.classList.remove('dark-mode');
+        themeToggleBtn.textContent = '🌙';
+    }
+}
+
+function getSavedTheme() {
+    return localStorage.getItem('theme') || 'light';
+}
+
+// Inicializa el tema al cargar
+applyTheme(getSavedTheme());
+
+// Cambia el tema al hacer click
+themeToggleBtn.addEventListener('click', () => {
+    const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+});
 
 displayProfiles(); // <-- Siempre después de definir todo lo anterior
 

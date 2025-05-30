@@ -1,3 +1,48 @@
+:root {
+  --color-bg: #f7f7f7;
+  --color-card: #fff;
+  --color-text: #222;
+  --color-primary: #007bff;
+  --color-primary-dark: #0056b3;
+  --color-border: #bbb;
+  --color-border-card: #ddd;
+  --color-shadow: rgba(0,0,0,0.08);
+  --color-shadow-hover: rgba(0,0,0,0.15);
+  --color-accent: #28a745;
+  --color-danger: #ff4d4f;
+  --color-warning: #ffc107;
+  --color-link: #007bff;
+  --color-link-hover: #0056b3;
+  --color-muted: #888;
+  --color-profile-title: #777;
+  --color-profile-bio: #555;
+  --color-toast-success: #388e3c;
+  --color-toast-error: #d32f2f;
+}
+
+body.dark-mode {
+  --color-bg: #181a1b;
+  --color-card: #23272a;
+  --color-text: #f1f1f1;
+  --color-primary: #4f8cff;
+  --color-primary-dark: #2a5dad;
+  --color-border: #444;
+  --color-border-card: #333;
+  --color-shadow: rgba(0,0,0,0.32);
+  --color-shadow-hover: rgba(0,0,0,0.45);
+  --color-accent: #4caf50;
+  --color-danger: #ff4d4f;
+  --color-warning: #ffd54f;
+  --color-link: #4f8cff;
+  --color-link-hover: #82b1ff;
+  --color-muted: #aaa;
+  --color-profile-title: #aaa;
+  --color-profile-bio: #ccc;
+  --color-toast-success: #388e3c;
+  --color-toast-error: #d32f2f;
+}
+
+
 /* ===========================
    1. RESET Y ESTILOS BASE
    =========================== */
@@ -9,7 +54,8 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f7f7f7;
+    background-color: var(--color-bg);
+    color: var(--color-text);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -49,6 +95,27 @@ body {
     transition: border 0.2s;
     box-sizing: border-box;
     background: #fff;
+}
+
+body.dark-mode #search-input {
+    background: var(--color-card);
+    color: var(--color-text);
+    border: 1px solid var(--color-border-card);
+}
+
+body.dark-mode .search-icon {
+    background: var(--color-card);
+    border: 1px solid var(--color-border-card);
+    border-left: none;
+}
+
+body.dark-mode .clear-search-btn {
+    color: #bbb;
+}
+body.dark-mode .clear-search-btn:hover,
+body.dark-mode .clear-search-btn:focus {
+    background: #23272a;
+    color: #ffb300;
 }
 
 /* Botón "X" para limpiar búsqueda */
@@ -109,7 +176,7 @@ body {
    =========================== */
 #no-results-message {
     text-align: center;
-    color: #888;
+    color: var(--color-muted);
     font-size: 1.1em;
     margin-top: 20px;
 }
@@ -119,7 +186,7 @@ body {
     margin-top: 15px;
     font-size: 1.2em;
     font-weight: bold;
-    color: #007bff;
+    color: var(--color-primary);
     transition: transform 0.2s ease-in-out;
 }
 @keyframes pulse {
@@ -135,7 +202,7 @@ body {
     margin: 10px auto 10px auto;
     text-align: center;
     font-size: 1.1em;
-    color: #007bff;
+    color: var(--color-primary);
     font-weight: 500;
 }
 
@@ -158,9 +225,11 @@ body {
    5. TARJETAS DE PERFIL
    =========================== */
 .profile-card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border: 1px solid var(--color-border-card);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px var(--color-shadow);
     padding: 20px;
     width: 320px;
     text-align: center;
@@ -168,7 +237,6 @@ body {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    border: 1px solid #ddd;
     opacity: 1;
     transform: scale(1);
     max-height: 180px;
@@ -188,10 +256,10 @@ body {
 /* Expansión suave al hover */
 .profile-card:hover {
     max-height: 500px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
-    border-color: #007bff;
+    box-shadow: 0 4px 24px var(--color-shadow-hover);
+    border-color: var(--color-primary);
     transform: translateY(-3px);
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.1);
+    
 }
 .profile-card::before {
     content: '';
@@ -210,7 +278,7 @@ body {
 }
 /* Tarjeta seleccionada */
 .profile-card.selected {
-    border: 2px solid #28a745;
+    border: 2px solid var(--color-accent);
     box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
     transform: translateY(-3px);
 }
@@ -228,17 +296,17 @@ body {
 }
 .profile-name {
     font-size: 22px;
-    color: #444;
+    color: var(--color-text);
     margin-bottom: 5px;
 }
 .profile-title {
     font-size: 14px;
-    color: #777;
+    color: var(--color-profile-title);
     margin-bottom: 15px;
 }
 .profile-bio {
     font-size: 14px;
-    color: #555;
+    color: var(--color-profile-bio);
     line-height: 1.6;
     margin-bottom: 20px;
     max-height: 80px;
@@ -264,15 +332,15 @@ body {
 }
 .profile-social a {
     text-decoration: none;
-    color: #007bff;
+    color: var(--color-link);
     font-weight: normal;
     transition: color 0.3s ease;
 }
 .profile-social a:hover {
-    color: #0056b3;
+    color: var(--color-link-hover);
 }
 .profile-button {
-    background-color: #007bff;
+    background-color: var(--color-primary);
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -282,14 +350,14 @@ body {
     transition: background-color 0.3s ease;
 }
 .profile-button:hover {
-    background-color: #0056b3;
+    background-color: var(--color-primary-dark);
 }
 
 /* ===========================
    7. BOTONES DE ACCIÓN EN TARJETA
    =========================== */
 .delete-profile-btn {
-    background: #ff4d4f;
+    background: var(--color-danger);
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -303,7 +371,7 @@ body {
     background: #d9363e;
 }
 .edit-profile-btn {
-    background: #ffc107;
+    background: var(--color-warning);
     color: #333;
     border: none;
     border-radius: 6px;
@@ -316,6 +384,16 @@ body {
 }
 .edit-profile-btn:hover {
     background: #e0a800;
+}
+.profile-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 14px;
+}
+.edit-profile-btn,
+.delete-profile-btn {
+    min-width: 90px;
 }
 
 /* ===========================
@@ -346,13 +424,13 @@ body {
     background-color: #eee;
 }
 .page-number-button.active {
-    background-color: #007bff;
+    background-color: var(--color-primary);
     color: white;
-    border-color: #007bff;
+    border-color: var(--color-primary);
 }
 .pagination-container button:disabled {
     background-color: #ddd;
-    color: #888;
+    color: var(--color-muted);
     cursor: not-allowed;
     border-color: #ddd;
 }
@@ -385,10 +463,11 @@ body {
     width: 100%;
     max-width: 600px;
     margin: 20px auto 18px auto;
-    background: #fff;
+    background: var(--color-card);
     border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    box-shadow: 0 2px 12px var(--color-shadow);
     padding: 18px 20px 12px 20px;
+    color: var(--color-text);
 }
 #add-profile-form {
     display: flex;
@@ -398,22 +477,26 @@ body {
 #add-profile-form h2 {
     margin-bottom: 8px;
     font-size: 1.2em;
-    color: #007bff;
+    color: var(--color-primary);
 }
 #add-profile-form input,
 #add-profile-form textarea {
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-card);
     border-radius: 6px;
     font-size: 1em;
     resize: none;
+     background: var(--color-card);
+    color: var(--color-text);
+    transition: border 0.2s, background 0.2s, color 0.2s;
 }
+
 #add-profile-form textarea {
     min-height: 60px;
     max-height: 180px;
 }
 #add-profile-form button[type="submit"] {
-    background: #007bff;
+    background: var(--color-primary);
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -423,7 +506,7 @@ body {
     transition: background 0.2s;
 }
 #add-profile-form button[type="submit"]:hover {
-    background: #0056b3;
+    background: var(--color-primary-dark);
 }
 
 /* ===========================
@@ -439,6 +522,16 @@ body {
     flex-direction: column;
     align-items: center;
     pointer-events: none;
+}
+.toast {
+    background: #222;
+    color: #fff;
+}
+.toast.success {
+    background: var(--color-toast-success);
+}
+.toast.error {
+    background: var(--color-toast-error);
 }
 .toast {
     background: #222;
@@ -515,4 +608,98 @@ body {
         max-width: 99vw;
         padding: 10px;
     }
+}
+
+/* ===========================
+   12. MODAL DE CONFIRMACIÓN
+   =========================== */
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+.modal.hidden {
+    display: none;
+}
+.modal-content {
+    background: #fff;
+    border-radius: 10px;
+    padding: 32px 28px 22px 28px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+    text-align: center;
+    min-width: 280px;
+    max-width: 90vw;
+}
+.modal-content p {
+    font-size: 1.1em;
+    color: #333;
+    margin-bottom: 22px;
+}
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+}
+.modal-btn {
+    padding: 8px 24px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.modal-btn-yes {
+    background: #ff4d4f;
+    color: #fff;
+}
+.modal-btn-yes:hover {
+    background: #d9363e;
+}
+.modal-btn-no {
+    background: #eee;
+    color: #333;
+}
+.modal-btn-no:hover {
+    background: #ccc;
+}
+.favorite-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.6em;
+    color: #ffd700;
+    cursor: pointer;
+    z-index: 3;
+    transition: transform 0.2s;
+    padding: 0;
+    line-height: 1;
+}
+.favorite-btn:hover,
+.favorite-btn:focus {
+    transform: scale(1.2) rotate(-10deg);
+    color: #ffb300;
+    outline: none;
+}
+.theme-toggle-btn {
+  position: absolute;
+  top: 18px;
+  right: 24px;
+  background: none;
+  border: none;
+  font-size: 1.7em;
+  cursor: pointer;
+  color: var(--color-primary);
+  z-index: 100;
+  transition: color 0.2s;
+}
+.theme-toggle-btn:hover,
+.theme-toggle-btn:focus {
+  color: #ffb300;
+  outline: none;
 }

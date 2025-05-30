@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+  <button id="theme-toggle" class="theme-toggle-btn" title="Cambiar tema">
+  🌙
+</button>
 <!-- Formulario para agregar perfiles -->
 <div class="add-profile-container">
   <form id="add-profile-form">
@@ -62,6 +66,24 @@
     </div>
 
     <div id="toast-container"></div>
+
+    <div class="favorites-filter-container">
+  <label>
+    <input type="checkbox" id="show-favorites-only" />
+    Mostrar solo favoritos
+  </label>
+</div>
+
+    <!-- Modal de confirmación -->
+<div id="confirm-modal" class="modal hidden">
+  <div class="modal-content">
+    <p id="confirm-modal-message">¿Seguro que deseas eliminar este perfil?</p>
+    <div class="modal-actions">
+      <button id="confirm-modal-yes" class="modal-btn modal-btn-yes">Sí</button>
+      <button id="confirm-modal-no" class="modal-btn modal-btn-no">No</button>
+    </div>
+  </div>
+</div>
 
     <script src="script.js"></script>
 </body>
