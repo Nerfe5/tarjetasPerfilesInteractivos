@@ -1,47 +1,351 @@
+/* ===========================
+   VARIABLES Y TEMAS
+   =========================== */
 :root {
-  --color-bg: #f7f7f7;
-  --color-card: #fff;
-  --color-text: #222;
-  --color-primary: #007bff;
-  --color-primary-dark: #0056b3;
-  --color-border: #bbb;
-  --color-border-card: #ddd;
-  --color-shadow: rgba(0,0,0,0.08);
-  --color-shadow-hover: rgba(0,0,0,0.15);
-  --color-accent: #28a745;
-  --color-danger: #ff4d4f;
-  --color-warning: #ffc107;
-  --color-link: #007bff;
-  --color-link-hover: #0056b3;
-  --color-muted: #888;
-  --color-profile-title: #777;
-  --color-profile-bio: #555;
-  --color-toast-success: #388e3c;
-  --color-toast-error: #d32f2f;
+    /* Colores principales */
+    --color-bg: #f7f7f7;
+    --color-card: #fff;
+    --color-text: #222;
+    --color-primary: #007bff;
+    --color-primary-dark: #0056b3;
+    
+    /* Bordes y sombras */
+    --color-border: #bbb;
+    --color-border-card: #ddd;
+    --color-shadow: rgba(0,0,0,0.08);
+    --color-shadow-hover: rgba(0,0,0,0.15);
+    
+    /* Estados y acentos */
+    --color-accent: #28a745;
+    --color-danger: #ff4d4f;
+    --color-warning: #ffc107;
+    
+    /* Enlaces y textos secundarios */
+    --color-link: #007bff;
+    --color-link-hover: #0056b3;
+    --color-muted: #888;
+    --color-profile-title: #777;
+    --color-profile-bio: #555;
+    
+    /* Notificaciones */
+    --color-toast-success: #388e3c;
+    --color-toast-error: #d32f2f;
 }
 
+/* Tema oscuro */
 body.dark-mode {
-  --color-bg: #181a1b;
-  --color-card: #23272a;
-  --color-text: #f1f1f1;
-  --color-primary: #4f8cff;
-  --color-primary-dark: #2a5dad;
-  --color-border: #444;
-  --color-border-card: #333;
-  --color-shadow: rgba(0,0,0,0.32);
-  --color-shadow-hover: rgba(0,0,0,0.45);
-  --color-accent: #4caf50;
-  --color-danger: #ff4d4f;
-  --color-warning: #ffd54f;
-  --color-link: #4f8cff;
-  --color-link-hover: #82b1ff;
-  --color-muted: #aaa;
-  --color-profile-title: #aaa;
-  --color-profile-bio: #ccc;
-  --color-toast-success: #388e3c;
-  --color-toast-error: #d32f2f;
+    --color-bg: #181a1b;
+    --color-card: #23272a;
+    --color-text: #f1f1f1;
+    --color-primary: #4f8cff;
+    --color-primary-dark: #2a5dad;
+    --color-border: #444;
+    --color-border-card: #333;
+    --color-shadow: rgba(0,0,0,0.32);
+    --color-shadow-hover: rgba(0,0,0,0.45);
+    --color-accent: #4caf50;
+    --color-link: #4f8cff;
+    --color-link-hover: #82b1ff;
+    --color-muted: #aaa;
+    --color-profile-title: #aaa;
+    --color-profile-bio: #ccc;
 }
 
+/* ===========================
+   RESET Y ESTILOS BASE
+   =========================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 10px;
+}
+
+/* ===========================
+   TÍTULO PRINCIPAL
+   =========================== */
+.main-title {
+    text-align: center;
+    margin: 40px auto 30px;
+    color: var(--color-text);
+}
+
+.main-title h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: var(--color-primary);
+}
+
+.main-title p {
+    font-size: 1.2em;
+    color: var(--color-profile-title);
+}
+
+/* ===========================
+   BARRA DE BÚSQUEDA
+   =========================== */
+.search-bar-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+}
+
+.search-container {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+#search-input {
+    width: 100%;
+    padding: 10px 38px 10px 12px;
+    border-radius: 6px 0 0 6px;
+    border: 1px solid var(--color-border);
+    font-size: 1em;
+    transition: border 0.2s;
+    background: var(--color-card);
+    color: var(--color-text);
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 0 4px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    height: 28px;
+    width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===========================
+   TARJETAS DE PERFIL
+   =========================== */
+.profile-card {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-border-card);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px var(--color-shadow);
+    padding: 20px;
+    width: 320px;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--color-shadow-hover);
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.profile-name {
+    font-size: 1.5em;
+    color: var(--color-text);
+    margin-bottom: 5px;
+}
+
+.profile-title {
+    color: var(--color-profile-title);
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+/* ===========================
+   PAGINACIÓN
+   =========================== */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 10px auto;
+    order: 2;
+}
+
+.pagination-container button,
+.page-number-button {
+    padding: 8px 15px;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    background-color: var(--color-card);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 40px;
+    font-size: 0.95em;
+}
+
+.pagination-container button:hover,
+.page-number-button:hover {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.page-number-button.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+.pagination-container button:disabled {
+    background-color: var(--color-border);
+    color: var(--color-muted);
+    cursor: not-allowed;
+    border-color: var(--color-border);
+    opacity: 0.6;
+}
+
+#page-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.pagination-settings {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    color: var(--color-text);
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto 10px auto;
+    order: 2;
+}
+
+#profiles-per-page {
+    padding: 6px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: var(--color-card);
+    color: var(--color-text);
+}
+
+#profiles-per-page:hover {
+    border-color: var(--color-primary);
+}
+
+/* Estilos específicos para modo oscuro */
+body.dark-mode .pagination-container button,
+body.dark-mode .page-number-button {
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+body.dark-mode .pagination-container button:hover,
+body.dark-mode .page-number-button:hover {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+body.dark-mode .page-number-button.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}
+
+body.dark-mode .pagination-container button:disabled {
+    background-color: var(--color-border);
+    color: var(--color-muted);
+    border-color: var(--color-border);
+    opacity: 0.6;
+}
+
+body.dark-mode #profiles-per-page {
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+body.dark-mode #profiles-per-page:hover {
+    border-color: var(--color-primary);
+}
+
+/* ===========================
+   MODALES
+   =========================== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--color-card);
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+/* ===========================
+   UTILIDADES
+   =========================== */
+.hidden {
+    display: none !important;
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 600px) {
+    .search-bar-wrapper,
+    .pagination-container,
+    .profile-card {
+        width: 100%;
+    }
+    
+    .profile-card {
+        margin: 10px 0;
+    }
+}
 
 /* ===========================
    1. RESET Y ESTILOS BASE
@@ -412,116 +716,176 @@ body.dark-mode .clear-search-btn:focus {
 }
 
 /* ===========================
-   8. PAGINACIÓN Y AJUSTES
-   =========================== */
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 10px;
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto 10px auto;
-    order: 2;
-}
-.pagination-container button,
-.page-number-button {
-    padding: 8px 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f8f8f8;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-.pagination-container button:hover,
-.page-number-button:hover {
-    background-color: #eee;
-}
-.page-number-button.active {
-    background-color: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-}
-.pagination-container button:disabled {
-    background-color: #ddd;
-    color: var(--color-muted);
-    cursor: not-allowed;
-    border-color: #ddd;
-}
-#page-numbers {
-    display: flex;
-    gap: 5px;
-}
-.pagination-settings {
-    text-align: center;
-    margin-bottom: 15px;
-    font-size: 0.9em;
-    color: #555;
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto 10px auto;
-    order: 2;
-}
-#profiles-per-page {
-    padding: 6px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-    cursor: pointer;
-}
-
-/* ===========================
    9. FORMULARIO DE AGREGAR PERFIL
    =========================== */
+.add-profile-toggle {
+    margin: 0 auto 20px;
+}
+
+.toggle-form-btn {
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toggle-form-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.plus-icon {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
 .add-profile-container {
     width: 100%;
     max-width: 600px;
-    margin: 20px auto 18px auto;
+    margin: 20px auto;
     background: var(--color-card);
     border-radius: 10px;
     box-shadow: 0 2px 12px var(--color-shadow);
-    padding: 18px 20px 12px 20px;
+    padding: 24px;
     color: var(--color-text);
+    transition: all 0.3s ease;
+    opacity: 1;
+    transform: translateY(0);
 }
+
+.add-profile-container.hidden {
+    display: none;
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.form-header h2 {
+    font-size: 1.5em;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+.close-form-btn {
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.close-form-btn:hover {
+    color: var(--color-danger);
+}
+
 #add-profile-form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
-#add-profile-form h2 {
-    margin-bottom: 8px;
-    font-size: 1.2em;
-    color: var(--color-primary);
-}
+
 #add-profile-form input,
 #add-profile-form textarea {
-    padding: 10px;
+    padding: 12px 15px;
     border: 1px solid var(--color-border-card);
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 1em;
-    resize: none;
-     background: var(--color-card);
+    background: var(--color-bg);
     color: var(--color-text);
-    transition: border 0.2s, background 0.2s, color 0.2s;
+    transition: all 0.3s ease;
+}
+
+#add-profile-form input:focus,
+#add-profile-form textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
 }
 
 #add-profile-form textarea {
-    min-height: 60px;
-    max-height: 180px;
+    min-height: 100px;
+    max-height: 200px;
+    resize: vertical;
+    line-height: 1.5;
 }
+
 #add-profile-form button[type="submit"] {
     background: var(--color-primary);
-    color: #fff;
+    color: white;
     border: none;
-    border-radius: 6px;
-    padding: 10px 0;
-    font-size: 1em;
+    border-radius: 8px;
+    padding: 12px 0;
+    font-size: 1.1em;
+    font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.3s ease;
+    margin-top: 10px;
 }
+
 #add-profile-form button[type="submit"]:hover {
     background: var(--color-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.2);
+}
+
+/* Estilos para campos opcionales */
+#add-profile-form input[placeholder*="opcional"] {
+    border-style: dashed;
+    border-color: var(--color-border);
+}
+
+/* Indicador visual para campos requeridos */
+#add-profile-form input:required,
+#add-profile-form textarea:required {
+    border-left: 3px solid var(--color-primary);
+}
+
+/* Estilo para placeholder */
+#add-profile-form input::placeholder,
+#add-profile-form textarea::placeholder {
+    color: var(--color-muted);
+    opacity: 0.7;
+}
+
+/* Estilo para cuando el formulario está en modo edición */
+#add-profile-form[data-editing-index] button[type="submit"] {
+    background: var(--color-warning);
+    color: #000;
+}
+
+#add-profile-form[data-editing-index] button[type="submit"]:hover {
+    background: #e0a800;
+}
+
+/* Animación de entrada y salida del formulario */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.add-profile-container:not(.hidden) {
+    animation: slideDown 0.3s ease-out;
 }
 
 /* ===========================
@@ -722,39 +1086,15 @@ body.dark-mode .clear-search-btn:focus {
    13. IMPORTAR/EXPORTAR PERFIL
    =========================== */
 .export-btn {
-    background: var(--color-primary);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 22px;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background 0.2s;
+    /* Estos estilos ya no son necesarios si se usa #export-csv-btn.action-btn */
+    /* background: var(--color-primary); */
+    /* color: #fff; */
+    /* ...otros estilos de forma/tamaño... */
 }
-.export-btn:hover {
-    background: var(--color-primary-dark);
-}
+
 .import-export-container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 24px auto 18px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 18px;
-}
-.import-btn {
-    background: var(--color-accent, #28a745);
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 22px;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.import-btn:hover {
-    background: #218838;
+    /* display: none; No es necesario si el div se eliminó del HTML */
+    /* Opcionalmente, dejar vacío para asegurar que no afecte si queda algún remanente */
 }
 
 /* Modal de detalles de perfil */
@@ -796,3 +1136,147 @@ body.dark-mode .clear-search-btn:focus {
 .close-modal-btn:hover {
     color: var(--color-danger, #d32f2f);
 }
+
+/* ===========================
+   ENLACES DE REDES SOCIALES
+   =========================== */
+.profile-social {
+    margin: 15px 0;
+}
+
+.profile-social a {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 0 8px;
+    border-radius: 20px;
+    background: var(--color-primary);
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.profile-social a:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+}
+
+/* Actualizar el espaciado del contenedor de perfiles */
+#profiles-container {
+    margin-top: 30px;
+}
+
+/* ===========================
+   TEXT HIGHLIGHTING
+   =========================== */
+.highlight {
+    background-color: yellow;
+    color: #333; /* Color de texto oscuro para contraste sobre amarillo */
+    padding: 0.1em 0;
+    border-radius: 3px;
+}
+
+body.dark-mode .highlight {
+    background-color: #ffd700; /* Un amarillo dorado para modo oscuro */
+    color: #1a1a1a; /* Texto aún más oscuro para buen contraste */
+}
+
+/* ===========================
+   CONTENEDOR DE ACCIONES GLOBALES
+   =========================== */
+.global-actions-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; /* Espacio entre botones */
+    margin: 20px auto 25px auto;
+    width: 100%;
+    max-width: 700px; /* Ajusta según sea necesario */
+}
+
+.global-actions-container.hidden {
+    display: none;
+}
+
+/* Estilo base para los botones de acción global */
+.action-btn {
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: inline-flex; /* Para alinear íconos si los tienen */
+    align-items: center;
+    justify-content: center;
+    min-width: 150px; /* Asegura un ancho mínimo similar */
+    text-align: center;
+}
+
+/* Colores específicos para cada botón (se mantienen los originales o se ajustan) */
+#export-csv-btn.action-btn {
+    background-color: var(--color-primary);
+    color: white;
+}
+#export-csv-btn.action-btn:hover {
+    background-color: var(--color-primary-dark);
+}
+
+#toggle-add-form.action-btn {
+    background-color: var(--color-accent); /* Usando color de acento para "Agregar" */
+    color: white;
+}
+#toggle-add-form.action-btn:hover {
+    background-color: #218838; /* Un verde más oscuro para el hover */
+}
+
+#import-btn.action-btn {
+    background-color: var(--color-warning); /* Usando color de advertencia para "Importar" */
+    color: #212529; /* Texto oscuro para contraste con amarillo */
+}
+#import-btn.action-btn:hover {
+    background-color: #e0a800; /* Un amarillo más oscuro */
+}
+
+/* Eliminar estilos del antiguo contenedor de importación/exportación */
+.import-export-container {
+    /* display: none; No es necesario si el div se eliminó del HTML */
+    /* Opcionalmente, dejar vacío para asegurar que no afecte si queda algún remanente */
+}
+
+/* Eliminar o neutralizar estilos del antiguo botón de toggle para agregar perfil si el div sigue existiendo */
+.add-profile-toggle {
+     /* margin: 0; padding: 0; display: none; */
+     /* Dejar vacío o eliminar si el div wrapper ya no existe o no debe ocupar espacio */
+     /* Por ahora, lo dejamos para no romper nada si el HTML no se limpió completamente */
+     margin: 0 auto 20px; /* Se mantiene el margen inferior si el div sigue existiendo para espaciar el formulario */
+}
+
+.toggle-form-btn .plus-icon {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-right: 8px; /* Espacio entre el + y el texto */
+}
+
+/* Modificar los estilos originales de .export-btn, .import-btn y el .toggle-form-btn 
+   para que no entren en conflicto o eliminarlos si .action-btn los reemplaza completamente 
+   en términos de forma y tamaño. 
+   Aquí asumimos que .action-btn establece la base y los IDs solo los colores. */
+
+.export-btn {
+    /* Estos estilos ya no son necesarios si se usa #export-csv-btn.action-btn */
+    /* background: var(--color-primary); */
+    /* color: #fff; */
+    /* ...otros estilos de forma/tamaño... */
+}
+
+.import-btn {
+    /* Estos estilos ya no son necesarios si se usa #import-btn.action-btn */
+    /* background: var(--color-accent, #28a745); */
+    /* color: #fff; */
+    /* ...otros estilos de forma/tamaño... */
+}
+
+/* Los estilos de .toggle-form-btn como padding, border-radius, etc., 
+   ahora son manejados por .action-btn. 
+   Solo mantenemos lo específico como el ícono si es necesario. */

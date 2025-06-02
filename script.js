@@ -1,19 +1,60 @@
-// =====================
-// 1. VARIABLES GLOBALES Y ELEMENTOS DEL DOM
-// =====================
+/**
+ * ============================
+ * CONFIGURACIÓN INICIAL
+ * ============================
+ */
 
-// Datos de perfiles (carga desde localStorage o array inicial)
+// Constantes para almacenamiento local
+const SELECTED_PROFILES_KEY = 'selectedProfiles';
+const FAVORITE_PROFILES_KEY = 'favoriteProfiles';
+
+// Variables globales
 let profilesData = [];
+let profilesPerPage = 3;
+let currentPage = 1;
+let currentFilteredProfiles = [];
+let renderTimeoutId = null;
+
+// Conjuntos para almacenar IDs
+const selectedProfileIds = new Set(JSON.parse(localStorage.getItem(SELECTED_PROFILES_KEY)) || []);
+const favoriteProfileIds = new Set(JSON.parse(localStorage.getItem(FAVORITE_PROFILES_KEY)) || []);
+
+/**
+ * ============================
+ * INICIALIZACIÓN DE DATOS
+ * ============================
+ */
+
+// Cargar perfiles desde localStorage o usar datos por defecto
 const storedProfiles = localStorage.getItem('profilesData');
+console.log('Perfiles almacenados:', storedProfiles);
+
 if (storedProfiles) {
     profilesData = JSON.parse(storedProfiles);
+    console.log('Perfiles cargados:', profilesData);
 } else {
+    console.log('No hay perfiles almacenados');
+    // Agregar perfiles por defecto si no hay ninguno
     profilesData = [
-        // ...tu array original de perfiles...
+        {
+            name: "Perfil de Ejemplo",
+            title: "Desarrollador Web",
+            image: "https://via.placeholder.com/150",
+            bio: "Este es un perfil de ejemplo para mostrar cuando no hay perfiles guardados.",
+            twitter: "https://twitter.com",
+            linkedin: "https://linkedin.com"
+        }
     ];
+    // Guardar el perfil de ejemplo en localStorage
+    localStorage.setItem('profilesData', JSON.stringify(profilesData));
 }
 
-// Elementos del DOM
+/**
+ * ============================
+ * ELEMENTOS DEL DOM
+ * ============================
+ */
+
 const profilesContainer = document.getElementById('profiles-container');
 const searchInput = document.getElementById('search-input');
 const noResultsMessage = document.getElementById('no-results-message');
@@ -24,44 +65,21 @@ const prevPageButton = document.getElementById('prev-page');
 const nextPageButton = document.getElementById('next-page');
 const pageNumbersContainer = document.getElementById('page-numbers');
 const addProfileForm = document.getElementById('add-profile-form');
-const SELECTED_PROFILES_KEY = 'selectedProfiles';
-const selectedProfileIds = new Set(JSON.parse(localStorage.getItem(SELECTED_PROFILES_KEY)) || []);
-const searchIcon = document.querySelector('.search-icon');
-
-const FAVORITE_PROFILES_KEY = 'favoriteProfiles';
-const favoriteProfileIds = new Set(JSON.parse(localStorage.getItem(FAVORITE_PROFILES_KEY)) || []);
-
 const clearSearchBtn = document.getElementById('clear-search');
-
 const exportCsvBtn = document.getElementById('export-csv-btn');
-if (exportCsvBtn) {
-    exportCsvBtn.addEventListener('click', exportSelectedProfilesToCSV);
-}
+const searchIcon = document.querySelector('.search-icon');
+const showFavoritesOnlyCheckbox = document.getElementById('show-favorites-only');
 
-searchInput.addEventListener('input', () => {
-    currentPage = 1;
-    displayProfiles();
-    // Mostrar u ocultar el botón "X"
-    clearSearchBtn.style.display = searchInput.value ? 'flex' : 'none';
-});
+// Elementos del formulario
+const toggleFormBtn = document.getElementById('toggle-add-form');
+const closeFormBtn = document.getElementById('close-add-form');
+const addProfileContainer = document.querySelector('.add-profile-container');
 
-clearSearchBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    clearSearchBtn.style.display = 'none';
-    currentPage = 1;
-    displayProfiles();
-    searchInput.focus();
-});
-
-// Variables de paginación y búsqueda
-let profilesPerPage = parseInt(profilesPerPageSelect.value);
-let currentPage = 1;
-let currentFilteredProfiles = [];
-let renderTimeoutId = null;
-
-// =====================
-// 2. FUNCIONES DE PAGINACIÓN
-// =====================
+/**
+ * ============================
+ * FUNCIONES DE PAGINACIÓN
+ * ============================
+ */
 
 function getTotalPages(profiles = profilesData) {
     return Math.ceil(profiles.length / profilesPerPage);
@@ -103,26 +121,33 @@ function updatePaginationUI(profiles = profilesData) {
     nextPageButton.disabled = currentPage === totalPages;
 }
 
-// =====================
-// 3. FUNCIONES DE RENDERIZADO Y UI
-// =====================
+/**
+ * ============================
+ * FUNCIONES DE RENDERIZADO
+ * ============================
+ */
 
 function renderProfileCards(profilesToRender) {
+    console.log('Renderizando tarjetas:', profilesToRender);
+    
     if (renderTimeoutId) clearTimeout(renderTimeoutId);
     profilesContainer.innerHTML = '';
     loadingMessage.classList.remove('hidden');
+    
     renderTimeoutId = setTimeout(() => {
         if (profilesToRender.length === 0) {
+            console.log('No hay perfiles para mostrar');
             noResultsMessage.classList.remove('hidden');
         } else {
             noResultsMessage.classList.add('hidden');
             profilesToRender.forEach(profile => {
+                console.log('Creando tarjeta para:', profile.name);
                 const newCard = createProfileCard(profile);
-                newCard.classList.add('profile-card--enter'); // Animación de entrada
+                newCard.classList.add('profile-card--enter');
                 profilesContainer.appendChild(newCard);
                 setTimeout(() => {
                     newCard.classList.remove('profile-card--enter');
-                }, 10); // Deja que el DOM pinte antes de quitar la clase
+                }, 10);
             });
         }
         updateSelectedCount();
@@ -131,17 +156,64 @@ function renderProfileCards(profilesToRender) {
     }, 100);
 }
 
-const showFavoritesOnlyCheckbox = document.getElementById('show-favorites-only');
-if (showFavoritesOnlyCheckbox) {
-    showFavoritesOnlyCheckbox.addEventListener('change', () => {
-        displayProfiles();
-    });
+function highlightText(text, searchTerm) {
+    if (!searchTerm || !text) {
+        return text;
+    }
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return text.replace(regex, '<mark class="highlight">$1</mark>');
 }
 
+function createProfileCard(profile) {
+    const card = document.createElement('div');
+    card.classList.add('profile-card');
+    card.dataset.profileName = profile.name;
+
+    if (selectedProfileIds.has(profile.name)) {
+        card.classList.add('selected');
+    }
+
+    const searchTerm = searchInput.value.trim().toLowerCase();
+
+    // Agregar contenido de la tarjeta
+    card.innerHTML = `
+        <button class="favorite-btn" title="Marcar como favorito">
+            ${favoriteProfileIds.has(profile.name) ? '★' : '☆'}
+        </button>
+        <img class="profile-image" src="${profile.image}" alt="Foto de perfil de ${profile.name}">
+        <h2 class="profile-name">${highlightText(profile.name, searchTerm)}</h2>
+        <h3 class="profile-title">${highlightText(profile.title, searchTerm)}</h3>
+        <p class="profile-bio">${highlightText(profile.bio, searchTerm)}</p>
+        <div class="profile-social">
+            ${profile.twitter ? `<a href="${profile.twitter}" target="_blank" rel="noopener noreferrer">Twitter</a>` : ''}
+            ${profile.linkedin ? `<a href="${profile.linkedin}" target="_blank" rel="noopener noreferrer">LinkedIn</a>` : ''}
+        </div>
+        <button class="profile-button">Contactar</button>
+        <button class="detail-profile-btn">Ver más</button>
+        <div class="profile-actions">
+            <button class="edit-profile-btn">Editar</button>
+            <button class="delete-profile-btn">Eliminar</button>
+        </div>
+    `;
+
+    // Eventos de la tarjeta
+    setupCardEventListeners(card, profile);
+
+    return card;
+}
+
+/**
+ * ============================
+ * FUNCIONES DE BÚSQUEDA Y FILTRADO
+ * ============================
+ */
+
 function displayProfiles() {
+    console.log('Ejecutando displayProfiles');
+    console.log('Estado actual de profilesData:', profilesData);
+    
     const searchTerm = searchInput.value.trim().toLowerCase();
     let profilesToShow = [];
-    let paginated = false;
 
     // Filtrar favoritos si está activado
     let baseProfiles = profilesData;
@@ -149,36 +221,32 @@ function displayProfiles() {
         baseProfiles = profilesData.filter(p => favoriteProfileIds.has(p.name));
     }
 
+    // Si hay término de búsqueda, filtrar perfiles
     if (searchTerm) {
         currentFilteredProfiles = baseProfiles.filter(profile => {
             const nameLower = profile.name.toLowerCase();
             const titleLower = profile.title.toLowerCase();
-            return nameLower.includes(searchTerm) || titleLower.includes(searchTerm);
+            const bioLower = profile.bio.toLowerCase();
+            return nameLower.includes(searchTerm) || 
+                   titleLower.includes(searchTerm) || 
+                   bioLower.includes(searchTerm);
         });
-        const startIndex = (currentPage - 1) * profilesPerPage;
-        const endIndex = startIndex + profilesPerPage;
-        profilesToShow = currentFilteredProfiles.slice(startIndex, endIndex);
-        paginated = true;
     } else {
-        currentFilteredProfiles = [];
-        profilesToShow = baseProfiles;
-        paginated = false;
+        currentFilteredProfiles = baseProfiles;
     }
 
+    // Aplicar paginación
+    const startIndex = (currentPage - 1) * profilesPerPage;
+    const endIndex = startIndex + profilesPerPage;
+    profilesToShow = currentFilteredProfiles.slice(startIndex, endIndex);
+
+    console.log('Perfiles a mostrar:', profilesToShow);
+    console.log('Página actual:', currentPage);
+    console.log('Perfiles por página:', profilesPerPage);
+    
     renderProfileCards(profilesToShow);
     updateProfilesCount();
-
-    // Mostrar/ocultar controles de paginación
-    const paginationContainer = document.querySelector('.pagination-container');
-    if (paginated) {
-        // Solo si hay búsqueda, muestra y actualiza la paginación
-        paginationContainer.style.display = '';
-        renderPageNumberButtons(currentFilteredProfiles);
-        updatePaginationUI(currentFilteredProfiles);
-    } else {
-        // Si NO hay búsqueda, oculta la paginación
-        paginationContainer.style.display = 'none';
-    }
+    updatePaginationVisibility(true);
 }
 
 function updateProfilesCount() {
@@ -191,216 +259,48 @@ function handleSearch() {
     displayProfiles();
 }
 
-// =====================
-// 4. FUNCIONES DE PERFIL Y SELECCIÓN
-// =====================
+function updatePaginationVisibility(paginated) {
+    const paginationContainer = document.querySelector('.pagination-container');
+    const pageNumbers = document.getElementById('page-numbers');
+    const searchTerm = searchInput.value.trim();
 
-function createProfileCard(profile) {
-    // Crea el contenedor principal de la tarjeta
-    const card = document.createElement('div');
-    card.classList.add('profile-card');
-    card.dataset.profileName = profile.name;
-
-    // Marca como seleccionada si corresponde
-    if (selectedProfileIds.has(profile.name)) {
-        card.classList.add('selected');
-    }
-
-    // Listener para seleccionar/deseleccionar la tarjeta
-    card.addEventListener('click', (event) => {
-        const clickedElement = event.target;
-        // Evita seleccionar si se hace clic en un botón o enlace
-        if (clickedElement.classList.contains('profile-button') || clickedElement.closest('a')) {
-            return;
+    if (paginationContainer) {
+        paginationContainer.style.display = '';
+        
+        // Mostrar/ocultar números de página según si hay búsqueda
+        if (pageNumbers) {
+            pageNumbers.style.display = searchTerm ? '' : 'none';
         }
-        const profileName = card.dataset.profileName;
-        if (selectedProfileIds.has(profileName)) {
-            selectedProfileIds.delete(profileName);
-            card.classList.remove('selected');
+
+        // Actualizar botones según si hay búsqueda o no
+        if (searchTerm) {
+            renderPageNumberButtons(currentFilteredProfiles);
+            updatePaginationUI(currentFilteredProfiles);
         } else {
-            selectedProfileIds.add(profileName);
-            card.classList.add('selected');
+            // Solo actualizar estado de botones anterior/siguiente
+            const totalPages = getTotalPages(profilesData);
+            prevPageButton.disabled = currentPage === 1;
+            nextPageButton.disabled = currentPage === totalPages;
         }
-        updateSelectedCount();
-        saveSelectedProfiles();
-    });
-
-    // Imagen de perfil
-    const img = document.createElement('img');
-    img.classList.add('profile-image');
-    img.src = profile.image;
-    img.alt = `Foto de perfil de ${profile.name}`;
-
-    // Nombre
-    const name = document.createElement('h2');
-    name.classList.add('profile-name');
-    name.textContent = profile.name;
-
-    // Título
-    const title = document.createElement('h3');
-    title.classList.add('profile-title');
-    title.textContent = profile.title;
-
-    // Biografía
-    const bio = document.createElement('p');
-    bio.classList.add('profile-bio');
-    bio.textContent = profile.bio;
-
-    // Redes sociales
-    const socialDiv = document.createElement('div');
-    socialDiv.classList.add('profile-social');
-    const socialList = document.createElement('ul');
-    if (profile.twitter) {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = profile.twitter;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        a.textContent = "Twitter";
-        li.appendChild(a);
-        socialList.appendChild(li);
-    }
-    if (profile.linkedin) {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = profile.linkedin;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        a.textContent = "LinkedIn";
-        li.appendChild(a);
-        socialList.appendChild(li);
-    }
-    socialDiv.appendChild(socialList);
-
-    // Botón Contactar
-    const button = document.createElement('button');
-    button.classList.add('profile-button');
-    button.textContent = "Contactar";
-    let contactSent = false;
-    button.addEventListener('click', (event) => {
-        event.stopPropagation();
-        contactSent = !contactSent;
-        if (contactSent) {
-            button.textContent = "Contacto Enviado ✅";
-            button.classList.add('sent');
-        } else {
-            button.textContent = "Contactar";
-            button.classList.remove('sent');
-        }
-    });
-
-    // Botón de favorito (estrella)
-    const favoriteBtn = document.createElement('button');
-    favoriteBtn.classList.add('favorite-btn');
-    favoriteBtn.title = "Marcar como favorito";
-    favoriteBtn.innerHTML = favoriteProfileIds.has(profile.name) ? '★' : '☆';
-    favoriteBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        if (favoriteProfileIds.has(profile.name)) {
-            favoriteProfileIds.delete(profile.name);
-            favoriteBtn.innerHTML = '☆';
-        } else {
-            favoriteProfileIds.add(profile.name);
-            favoriteBtn.innerHTML = '★';
-        }
-        saveFavoriteProfiles();
-    });
-
-    // Botón Editar
-    const editBtn = document.createElement('button');
-    editBtn.classList.add('edit-profile-btn');
-    editBtn.textContent = "Editar";
-    editBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        document.getElementById('new-name').value = profile.name;
-        document.getElementById('new-title').value = profile.title;
-        document.getElementById('new-image').value = profile.image;
-        document.getElementById('new-bio').value = profile.bio;
-        document.getElementById('new-twitter').value = profile.twitter || '';
-        document.getElementById('new-linkedin').value = profile.linkedin || '';
-        addProfileForm.dataset.editingIndex = profilesData.findIndex(p =>
-            p.name === profile.name &&
-            p.title === profile.title &&
-            p.bio === profile.bio
-        );
-        addProfileForm.querySelector('button[type="submit"]').textContent = "Guardar cambios";
-        updateProfilesCount();
-        displayProfiles();
-    });
-
-    // Botón Eliminar
-    const deleteBtn = document.createElement('button');
-    deleteBtn.classList.add('delete-profile-btn');
-    deleteBtn.textContent = "Eliminar";
-    deleteBtn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        showConfirmModal(`¿Seguro que deseas eliminar el perfil de ${profile.name}?`, (confirmed) => {
-            if (confirmed) {
-                const idx = profilesData.findIndex(p =>
-                    p.name === profile.name &&
-                    p.title === profile.title &&
-                    p.bio === profile.bio
-                );
-                if (idx !== -1) {
-                    selectedProfileIds.delete(profile.name);
-                    card.classList.add('profile-card--exit');
-                    setTimeout(() => {
-                        profilesData.splice(idx, 1);
-                        saveProfilesToLocalStorage();
-                        showToast(`Perfil de ${profile.name} eliminado correctamente.`, "success");
-                        currentPage = 1;
-                        displayProfiles();
-                        cleanSelectedProfiles();
-                        updateSelectedCount();
-                    }, 300);
-                }
-            }
-        });
-    });
-
-    // Contenedor para los botones de acción (editar y eliminar)
-    const actionsDiv = document.createElement('div');
-    actionsDiv.classList.add('profile-actions');
-    actionsDiv.appendChild(editBtn);
-    actionsDiv.appendChild(deleteBtn);
-
-
-    const detailBtn = document.createElement('button');
-detailBtn.classList.add('detail-profile-btn');
-detailBtn.textContent = "Ver más";
-detailBtn.addEventListener('click', (event) => {
-    event.stopPropagation();
-    showProfileDetailModal(profile);
-});
-
-    // Añade los elementos al card en el orden correcto
-    card.appendChild(favoriteBtn); // Estrella arriba a la derecha
-    card.appendChild(img);
-    card.appendChild(name);
-    card.appendChild(title);
-    card.appendChild(bio);
-    card.appendChild(socialDiv);
-    card.appendChild(button);      // Botón Contactar
-    card.appendChild(detailBtn);   // Botón Ver más
-    card.appendChild(actionsDiv);  // Botones Editar y Eliminar debajo
-
-
-
-
-    return card;
-}
-
-
-
-function updateExportBtnVisibility() {
-    if (exportCsvBtn) {
-        exportCsvBtn.style.display = selectedProfileIds.size > 0 ? 'inline-block' : 'none';
     }
 }
 
-// =====================
-// 5. FUNCIONES DE UTILIDAD Y LOCALSTORAGE
-// =====================
+function updateGlobalActionsVisibility() {
+    const globalActionsContainer = document.getElementById('global-profile-actions');
+    if (globalActionsContainer) {
+        if (selectedProfileIds.size > 0) {
+            globalActionsContainer.classList.remove('hidden');
+        } else {
+            globalActionsContainer.classList.add('hidden');
+        }
+    }
+}
+
+/**
+ * ============================
+ * FUNCIONES DE UTILIDAD Y LOCALSTORAGE
+ * ============================
+ */
 
 function saveSelectedProfiles() {
     localStorage.setItem(SELECTED_PROFILES_KEY, JSON.stringify(Array.from(selectedProfileIds)));
@@ -416,13 +316,10 @@ function updateSelectedCount() {
     setTimeout(() => {
         selectedProfilesCountDisplay.classList.remove('pulsing');
     }, 300);
-    updateExportBtnVisibility();
+    updateGlobalActionsVisibility();
 }
 
-
-
 function cleanSelectedProfiles() {
-    // Elimina del set cualquier nombre que ya no esté en profilesData
     const validNames = new Set(profilesData.map(p => p.name));
     for (const name of selectedProfileIds) {
         if (!validNames.has(name)) {
@@ -437,7 +334,6 @@ function saveFavoriteProfiles() {
 }
 
 function exportSelectedProfilesToCSV() {
-    // Filtra los perfiles seleccionados
     const selectedProfiles = profilesData.filter(profile => selectedProfileIds.has(profile.name));
     if (!selectedProfiles.length) {
         showToast("No hay perfiles seleccionados para exportar.", "error");
@@ -477,7 +373,7 @@ const importFileInput = document.getElementById('import-file-input');
 
 if (importBtn && importFileInput) {
     importBtn.addEventListener('click', () => {
-        importFileInput.value = ''; // Limpia selección previa
+        importFileInput.value = '';
         importFileInput.click();
     });
 
@@ -502,7 +398,6 @@ if (importBtn && importFileInput) {
                 return;
             }
 
-            // Filtra duplicados por nombre
             let addedCount = 0;
             importedProfiles.forEach(profile => {
                 if (
@@ -527,7 +422,6 @@ if (importBtn && importFileInput) {
     });
 }
 
-// Función para parsear CSV a objetos de perfil
 function parseCSVProfiles(csvText) {
     const lines = csvText.trim().split('\n');
     const headers = lines[0].split(',').map(h => h.trim());
@@ -547,34 +441,40 @@ function parseCSVProfiles(csvText) {
 function showProfileDetailModal(profile) {
     const modal = document.getElementById('profile-detail-modal');
     const content = document.getElementById('profile-detail-content');
+    
     content.innerHTML = `
         <div class="profile-detail-modal-content">
-            <img src="${profile.image}" alt="Foto de perfil de ${profile.name}" style="width:120px;height:120px;border-radius:50%;margin-bottom:16px;">
-            <h2>${profile.name}</h2>
-            <h3>${profile.title}</h3>
-            <p style="margin:16px 0;">${profile.bio}</p>
-            <div>
-                ${profile.twitter ? `<a href="${profile.twitter}" target="_blank">Twitter</a>` : ''}
-                ${profile.linkedin ? `<a href="${profile.linkedin}" target="_blank">LinkedIn</a>` : ''}
+            <img src="${profile.image}" alt="Foto de perfil de ${profile.name}" 
+                 style="width:150px;height:150px;border-radius:50%;margin-bottom:20px;border:3px solid var(--color-primary);">
+            <h2 style="font-size:24px;margin-bottom:10px;color:var(--color-text);">${profile.name}</h2>
+            <h3 style="font-size:18px;margin-bottom:15px;color:var(--color-profile-title);">${profile.title}</h3>
+            <p style="margin:20px 0;line-height:1.6;color:var(--color-profile-bio);">${profile.bio}</p>
+            <div style="margin-top:20px;">
+                ${profile.twitter ? 
+                    `<a href="${profile.twitter}" target="_blank" rel="noopener noreferrer" 
+                        style="margin:0 10px;color:var(--color-primary);text-decoration:none;">
+                        <i class="fab fa-twitter"></i> Twitter
+                    </a>` : ''}
+                ${profile.linkedin ? 
+                    `<a href="${profile.linkedin}" target="_blank" rel="noopener noreferrer" 
+                        style="margin:0 10px;color:var(--color-primary);text-decoration:none;">
+                        <i class="fab fa-linkedin"></i> LinkedIn
+                    </a>` : ''}
             </div>
         </div>
     `;
+    
     modal.classList.remove('hidden');
 }
 
-// Cerrar modal
 document.getElementById('close-detail-modal').addEventListener('click', () => {
     document.getElementById('profile-detail-modal').classList.add('hidden');
 });
-// =====================
-// 6. FUNCIONES DE FORMULARIO (AGREGAR/EDITAR)
-// =====================
 
 if (addProfileForm) {
     addProfileForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Obtén los valores de los campos del formulario
         const name = document.getElementById('new-name').value.trim();
         const title = document.getElementById('new-title').value.trim();
         const image = document.getElementById('new-image').value.trim();
@@ -582,7 +482,6 @@ if (addProfileForm) {
         const twitter = document.getElementById('new-twitter').value.trim();
         const linkedin = document.getElementById('new-linkedin').value.trim();
 
-        // Validación básica
         if (!name || !title || !image || !bio) {
             showToast("Por favor, completa todos los campos obligatorios.", "error");
             return;
@@ -597,7 +496,6 @@ if (addProfileForm) {
             linkedin: linkedin || null
         };
 
-        // ¿Estamos editando?
         const editingIndex = addProfileForm.dataset.editingIndex;
         if (editingIndex && editingIndex !== "-1") {
             profilesData[editingIndex] = newProfile;
@@ -615,10 +513,6 @@ if (addProfileForm) {
     });
 }
 
-// =====================
-// 7. FUNCIONES DE TOAST
-// =====================
-
 function showToast(message, type = "info") {
     const toastContainer = document.getElementById('toast-container');
     const toast = document.createElement('div');
@@ -632,7 +526,6 @@ function showToast(message, type = "info") {
     }, 2500);
 }
 
-// Modal de confirmación reutilizable
 function showConfirmModal(message, onConfirm) {
     const modal = document.getElementById('confirm-modal');
     const msg = document.getElementById('confirm-modal-message');
@@ -642,7 +535,6 @@ function showConfirmModal(message, onConfirm) {
     msg.textContent = message;
     modal.classList.remove('hidden');
 
-    // Limpia listeners previos
     yesBtn.onclick = null;
     noBtn.onclick = null;
 
@@ -656,14 +548,9 @@ function showConfirmModal(message, onConfirm) {
     };
 }
 
-// =====================
-// 8. EVENTOS Y LISTENERS
-// =====================
-
 searchIcon.addEventListener('click', () => {
     searchInput.classList.add('active');
     searchInput.focus();
-    // Simula el evento de input para disparar la búsqueda
     currentPage = 1;
     displayProfiles();
 });
@@ -680,7 +567,7 @@ profilesPerPageSelect.addEventListener('change', () => {
 });
 
 prevPageButton.addEventListener('click', () => {
-    if (currentPage > 1 && searchInput.value.trim()) {
+    if (currentPage > 1) {
         currentPage--;
         displayProfiles();
     }
@@ -688,18 +575,14 @@ prevPageButton.addEventListener('click', () => {
 
 nextPageButton.addEventListener('click', () => {
     const totalPages = getTotalPages(currentFilteredProfiles);
-    if (currentPage < totalPages && searchInput.value.trim()) {
+    if (currentPage < totalPages) {
         currentPage++;
         displayProfiles();
     }
 });
 
-// =====================
-// 9. INICIALIZACIÓN
-// =====================
 const themeToggleBtn = document.getElementById('theme-toggle');
 
-// Cargar preferencia de tema
 function applyTheme(theme) {
     if (theme === 'dark') {
         document.body.classList.add('dark-mode');
@@ -714,10 +597,8 @@ function getSavedTheme() {
     return localStorage.getItem('theme') || 'light';
 }
 
-// Inicializa el tema al cargar
 applyTheme(getSavedTheme());
 
-// Cambia el tema al hacer click
 themeToggleBtn.addEventListener('click', () => {
     const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -725,5 +606,193 @@ themeToggleBtn.addEventListener('click', () => {
     localStorage.setItem('theme', newTheme);
 });
 
-displayProfiles(); // <-- Siempre después de definir todo lo anterior
-updateExportBtnVisibility(); // Actualiza la visibilidad del botón de exportación al cargar
+// Asegurarnos de que profilesPerPage se inicialice correctamente
+document.addEventListener('DOMContentLoaded', () => {
+    profilesPerPage = parseInt(profilesPerPageSelect.value) || 3;
+    console.log('Inicializando profilesPerPage:', profilesPerPage);
+    displayProfiles();
+    updateGlobalActionsVisibility();
+});
+
+/**
+ * ============================
+ * FUNCIONES DE MANEJO DE TARJETAS
+ * ============================
+ */
+
+function setupCardEventListeners(card, profile) {
+    // Evento de selección de tarjeta
+    card.addEventListener('click', (event) => {
+        const clickedElement = event.target;
+        // Evita seleccionar si se hace clic en un botón o enlace
+        if (clickedElement.classList.contains('profile-button') || 
+            clickedElement.closest('a') ||
+            clickedElement.classList.contains('edit-profile-btn') ||
+            clickedElement.classList.contains('delete-profile-btn') ||
+            clickedElement.classList.contains('favorite-btn') ||
+            clickedElement.classList.contains('detail-profile-btn')) {
+            return;
+        }
+        const profileName = card.dataset.profileName;
+        if (selectedProfileIds.has(profileName)) {
+            selectedProfileIds.delete(profileName);
+            card.classList.remove('selected');
+        } else {
+            selectedProfileIds.add(profileName);
+            card.classList.add('selected');
+        }
+        updateSelectedCount();
+        saveSelectedProfiles();
+    });
+
+    // Botón de contactar
+    const contactBtn = card.querySelector('.profile-button');
+    if (contactBtn) {
+        let contactSent = false;
+        contactBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            contactSent = !contactSent;
+            if (contactSent) {
+                contactBtn.textContent = "Contacto Enviado ✅";
+                contactBtn.classList.add('sent');
+            } else {
+                contactBtn.textContent = "Contactar";
+                contactBtn.classList.remove('sent');
+            }
+        });
+    }
+
+    // Botón Ver más
+    const detailBtn = card.querySelector('.detail-profile-btn');
+    if (detailBtn) {
+        detailBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            showProfileDetailModal(profile);
+        });
+    }
+
+    // Botón de favorito
+    const favoriteBtn = card.querySelector('.favorite-btn');
+    if (favoriteBtn) {
+        favoriteBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (favoriteProfileIds.has(profile.name)) {
+                favoriteProfileIds.delete(profile.name);
+                favoriteBtn.innerHTML = '☆';
+                showToast(`${profile.name} eliminado de favoritos`, "info");
+            } else {
+                favoriteProfileIds.add(profile.name);
+                favoriteBtn.innerHTML = '★';
+                showToast(`${profile.name} agregado a favoritos`, "success");
+            }
+            saveFavoriteProfiles();
+            if (showFavoritesOnlyCheckbox && showFavoritesOnlyCheckbox.checked) {
+                currentPage = 1; // Resetear a la primera página
+                displayProfiles();
+            }
+        });
+    }
+
+    // Botón de editar
+    const editBtn = card.querySelector('.edit-profile-btn');
+    if (editBtn) {
+        editBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            addProfileContainer.classList.remove('hidden');
+            document.getElementById('new-name').value = profile.name;
+            document.getElementById('new-title').value = profile.title;
+            document.getElementById('new-image').value = profile.image;
+            document.getElementById('new-bio').value = profile.bio;
+            document.getElementById('new-twitter').value = profile.twitter || '';
+            document.getElementById('new-linkedin').value = profile.linkedin || '';
+            
+            const editingIndex = profilesData.findIndex(p => 
+                p.name === profile.name && 
+                p.title === profile.title && 
+                p.bio === profile.bio
+            );
+            
+            addProfileForm.dataset.editingIndex = editingIndex;
+            addProfileForm.querySelector('button[type="submit"]').textContent = "Guardar cambios";
+            
+            // Scroll hacia el formulario
+            addProfileContainer.scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+
+    // Botón de eliminar
+    const deleteBtn = card.querySelector('.delete-profile-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            showConfirmModal(`¿Seguro que deseas eliminar el perfil de ${profile.name}?`, (confirmed) => {
+                if (confirmed) {
+                    const idx = profilesData.findIndex(p => 
+                        p.name === profile.name && 
+                        p.title === profile.title && 
+                        p.bio === profile.bio
+                    );
+                    if (idx !== -1) {
+                        selectedProfileIds.delete(profile.name);
+                        favoriteProfileIds.delete(profile.name);
+                        card.classList.add('profile-card--exit');
+                        setTimeout(() => {
+                            profilesData.splice(idx, 1);
+                            saveProfilesToLocalStorage();
+                            saveFavoriteProfiles();
+                            showToast(`Perfil de ${profile.name} eliminado correctamente.`, "success");
+                            currentPage = 1;
+                            displayProfiles();
+                            cleanSelectedProfiles();
+                            cleanFavoriteProfiles();
+                            updateSelectedCount();
+                        }, 300);
+                    }
+                }
+            });
+        });
+    }
+}
+
+// Función para mostrar/ocultar el formulario
+function toggleAddProfileForm() {
+    addProfileContainer.classList.toggle('hidden');
+    if (!addProfileContainer.classList.contains('hidden')) {
+        document.getElementById('new-name').focus();
+    }
+}
+
+// Event listeners para el formulario
+if (toggleFormBtn) {
+    toggleFormBtn.addEventListener('click', toggleAddProfileForm);
+}
+
+if (closeFormBtn) {
+    closeFormBtn.addEventListener('click', () => {
+        addProfileContainer.classList.add('hidden');
+        addProfileForm.reset();
+        // Resetear el formulario al modo "agregar"
+        if (addProfileForm.dataset.editingIndex) {
+            delete addProfileForm.dataset.editingIndex;
+            addProfileForm.querySelector('button[type="submit"]').textContent = "Agregar perfil";
+        }
+    });
+}
+
+// Agregar el evento de cambio para el checkbox de favoritos
+if (showFavoritesOnlyCheckbox) {
+    showFavoritesOnlyCheckbox.addEventListener('change', () => {
+        currentPage = 1; // Resetear a la primera página cuando cambia el filtro
+        displayProfiles();
+    });
+}
+
+function cleanFavoriteProfiles() {
+    const validNames = new Set(profilesData.map(p => p.name));
+    for (const name of favoriteProfileIds) {
+        if (!validNames.has(name)) {
+            favoriteProfileIds.delete(name);
+        }
+    }
+    saveFavoriteProfiles();
+}
