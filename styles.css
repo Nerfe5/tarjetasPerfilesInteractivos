@@ -52,27 +52,6 @@ body.dark-mode {
 }
 
 /* ===========================
-   RESET Y ESTILOS BASE
-   =========================== */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    padding: 10px;
-}
-
-/* ===========================
    TÍTULO PRINCIPAL
    =========================== */
 .main-title {
@@ -718,21 +697,9 @@ body.dark-mode .clear-search-btn:focus {
 /* ===========================
    9. FORMULARIO DE AGREGAR PERFIL
    =========================== */
-.add-profile-toggle {
-    margin: 0 auto 20px;
-}
-
 .toggle-form-btn {
-    padding: 12px 24px;
-    border-radius: 25px;
-    font-size: 1.1em;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
     gap: 8px;
 }
-
 .toggle-form-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -902,10 +869,6 @@ body.dark-mode .clear-search-btn:focus {
     align-items: center;
     pointer-events: none;
 }
-.toast {
-    background: #222;
-    color: #fff;
-}
 .toast.success {
     background: var(--color-toast-success);
 }
@@ -934,9 +897,7 @@ body.dark-mode .clear-search-btn:focus {
 /* ===========================
    11. UTILIDADES Y RESPONSIVE
    =========================== */
-.hidden {
-    display: none;
-}
+/* La definición de .hidden (originalmente líneas 852-854) se elimina aquí, se conserva la de línea 290. */
 
 /* --- Desktop/tablet: tarjetas en grid --- */
 @media (min-width: 601px) {
@@ -1085,17 +1046,7 @@ body.dark-mode .clear-search-btn:focus {
 /* ===========================
    13. IMPORTAR/EXPORTAR PERFIL
    =========================== */
-.export-btn {
-    /* Estos estilos ya no son necesarios si se usa #export-csv-btn.action-btn */
-    /* background: var(--color-primary); */
-    /* color: #fff; */
-    /* ...otros estilos de forma/tamaño... */
-}
 
-.import-export-container {
-    /* display: none; No es necesario si el div se eliminó del HTML */
-    /* Opcionalmente, dejar vacío para asegurar que no afecte si queda algún remanente */
-}
 
 /* Modal de detalles de perfil */
 #profile-detail-modal.modal {
@@ -1238,11 +1189,7 @@ body.dark-mode .highlight {
     background-color: #e0a800; /* Un amarillo más oscuro */
 }
 
-/* Eliminar estilos del antiguo contenedor de importación/exportación */
-.import-export-container {
-    /* display: none; No es necesario si el div se eliminó del HTML */
-    /* Opcionalmente, dejar vacío para asegurar que no afecte si queda algún remanente */
-}
+
 
 /* Eliminar o neutralizar estilos del antiguo botón de toggle para agregar perfil si el div sigue existiendo */
 .add-profile-toggle {
@@ -1263,19 +1210,7 @@ body.dark-mode .highlight {
    en términos de forma y tamaño. 
    Aquí asumimos que .action-btn establece la base y los IDs solo los colores. */
 
-.export-btn {
-    /* Estos estilos ya no son necesarios si se usa #export-csv-btn.action-btn */
-    /* background: var(--color-primary); */
-    /* color: #fff; */
-    /* ...otros estilos de forma/tamaño... */
-}
 
-.import-btn {
-    /* Estos estilos ya no son necesarios si se usa #import-btn.action-btn */
-    /* background: var(--color-accent, #28a745); */
-    /* color: #fff; */
-    /* ...otros estilos de forma/tamaño... */
-}
 
 /* Los estilos de .toggle-form-btn como padding, border-radius, etc., 
    ahora son manejados por .action-btn. 

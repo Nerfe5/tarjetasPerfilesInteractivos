@@ -796,3 +796,4 @@ function cleanFavoriteProfiles() {
     }
     saveFavoriteProfiles();
 }
+
